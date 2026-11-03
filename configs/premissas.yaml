@@ -1,0 +1,75 @@
+# Premissas do índice de saúde e criticidade de subestações.
+# Tudo o que não vem direto dos dados públicos está aqui, com a origem.
+# Valores marcados como ILUSTRATIVO servem para demonstrar o método e devem ser
+# calibrados com dados da distribuidora antes de uso real.
+
+dados:
+  distribuidora: EMT
+  # caminhos relativos à raiz do repositório
+  cache_bdgd: data/bdgd-cache                  # gerado por scripts/00_cache_bdgd.py
+  interim_gridrisk: ../distribution-asset-risk/data/interim   # interrupções harmonizadas + crosswalks (projeto irmão)
+  ano_decisao: 2025          # snapshot usado para a lista de prioridades
+  ano_validacao: 2023        # índice montado só com dados até este ano
+  anos_resultado: [2024, 2025]
+
+eletrico:
+  fator_potencia: 0.92       # converte MW médio em MVA (premissa usual de planejamento)
+  # Razão média/pico DENTRO do mês de maior carga (não o fator de carga anual, que é menor).
+  # Sensibilidade em 0.62 e 0.82 no relatório.
+  fator_carga_se: 0.72
+  # Capacidade de emergência de cada trafo: maior estágio de ventilação forçada
+  # cadastrado (POT_F02 > POT_F01 > POT_NOM) vezes o fator abaixo.
+  sobrecarga_emergencia: 1.0
+  tensoes_secundario_mt: ["38", "49", "72"]   # códigos PRODIST: 13,8 kV (49), 34,5 kV (72) etc.
+  # Carregamento só entra no índice se >= esta fração da energia dos alimentadores
+  # da SE vier de alimentadores com vínculo coerente ao trafo (tensão = secundário).
+  cobertura_minima_vinculo: 0.8
+
+eventos:
+  min_alimentadores_evento_se: 3   # interrupções simultâneas (mesmo minuto) em >= N alimentadores da mesma SE
+
+# Normalização: cada indicador vira um score 0-100 por interpolação linear entre
+# "bom" (score 0) e "ruim" (score 100), com saturação nas pontas.
+scores:
+  utilizacao_pico_pontuado: {bom: 0.50, ruim: 1.00}   # pico estimado / potência nominal instalada
+  deficit_n1_pontuado: {bom: 0.0, ruim: 0.5}          # fração do pico que não cabe se o maior trafo sair
+  idade_anos: {bom: 10, ruim: 40}                 # idade do trafo mais antigo
+  crescimento_aa: {bom: 0.0, ruim: 0.10}          # crescimento anual da energia (2 anos)
+  perdas_z: {bom: 0.0, ruim: 2.5}                 # perda no ferro acima do esperado p/ o porte (z-score)
+  eventos_se_por_100k_uc: {bom: 0.0, ruim: 20.0}  # eventos de SE/ano por 100 mil UC (desempenho)
+  n_uc: {bom: 5000, ruim: 100000, log: true}      # clientes atendidos (escala log)
+  energia_gwh: {bom: 20, ruim: 500, log: true}
+  frac_uc_sem_transferencia: {bom: 0.0, ruim: 1.0}
+  frac_municipio: {bom: 0.0, ruim: 1.0}           # 1 = única SE do município
+
+pesos:
+  saude:            # condição da SE
+    utilizacao_pico_pontuado: 0.30
+    deficit_n1_pontuado: 0.30
+    idade_anos: 0.20
+    perdas_z: 0.05
+    eventos_se_por_100k_uc: 0.15
+    # crescimento_aa fica fora: a energia dos alimentadores na BDGD é líquida da GD e
+    # cai em muitas SEs; é reportado só como informação.
+  criticidade:      # consequência de perder a SE
+    n_uc: 0.45
+    energia_gwh: 0.20
+    frac_uc_sem_transferencia: 0.20
+    frac_municipio: 0.15
+
+matriz:
+  corte_saude: 50
+  corte_criticidade: 50
+
+valor:
+  # R$ por consumidor-hora interrompido (média da frota), do projeto automation-impact
+  # (reports/valor.json), que por sua vez usa as compensações pagas (ANEEL) e o custo
+  # da energia não suprida do distribution-asset-risk.
+  rs_por_chi_social: 5.943
+  rs_por_chi_compensacao: 1.926
+  custo_ens_rs_mwh: 7000             # mesmo cenário do distribution-asset-risk (não é valor regulatório)
+  taxa_falha_trafo_ano: 0.01         # ILUSTRATIVO: falha grave de trafo de potência por ano
+  horas_reposicao: 72                # ILUSTRATIVO: até remanejar carga/subestação móvel
+  custo_ampliacao_rs_mva: 200000     # ILUSTRATIVO: trafo + vão por MVA adicionado
+  vida_util_anos: 35
+  taxa_desconto: 0.08

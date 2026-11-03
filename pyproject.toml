@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sehealth"
+version = "0.1.0"
+description = "Índice de saúde e criticidade de subestações com dados abertos da ANEEL (BDGD)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+  "duckdb>=1.1",
+  "pandas>=2.2",
+  "pyarrow>=16",
+  "pyyaml>=6",
+  "scipy>=1.13",
+  "matplotlib>=3.9",
+]
+
+[project.optional-dependencies]
+dados = ["pyogrio>=0.9", "geopandas>=1.0", "requests>=2.32"]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

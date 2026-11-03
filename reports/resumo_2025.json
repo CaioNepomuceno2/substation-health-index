@@ -1,0 +1,155 @@
+{
+  "ano": 2025,
+  "n_ses": 78,
+  "n_uc": 2025997.0,
+  "ses_carregamento_incerto": 15,
+  "ses_um_trafo": 36,
+  "uc_em_ses_um_trafo": 362605.0,
+  "ses_sem_folga_n1_pontuadas": 29,
+  "ses_sem_folga_n1_com_2mais_trafos": 6,
+  "ses_utilizacao_acima_80pct": 4,
+  "ses_utilizacao_acima_100pct": 0,
+  "ses_fluxo_reverso_anual": 8,
+  "ses_com_meses_fluxo_reverso": 13,
+  "uc_sem_transferencia": 1130690.0,
+  "frac_uc_sem_transferencia": 0.5580906585745191,
+  "quadrantes": {
+    "agir: ampliar/substituir": {
+      "n_ses": 3,
+      "n_uc": 123339.0,
+      "rs_risco": 322371.0
+    },
+    "manter": {
+      "n_ses": 29,
+      "n_uc": 251067.0,
+      "rs_risco": 586834.0
+    },
+    "monitorar: condição boa, alta consequência": {
+      "n_ses": 36,
+      "n_uc": 1564524.0,
+      "rs_risco": 3435389.0
+    },
+    "planejar: condição ruim, baixa consequência": {
+      "n_ses": 10,
+      "n_uc": 87067.0,
+      "rs_risco": 487978.0
+    }
+  },
+  "top10_risco": [
+    {
+      "se": "30",
+      "nome": "SE AGUA BOA 138 KV",
+      "quadrante": "agir: ampliar/substituir",
+      "risco": 48.6,
+      "fatores_saude": "idade_anos, eventos_se_por_100k_uc",
+      "n_uc": 66524.0
+    },
+    {
+      "se": "67",
+      "nome": "SE PRIMAVERA DO LESTE 138 KV",
+      "quadrante": "agir: ampliar/substituir",
+      "risco": 31.3,
+      "fatores_saude": "utilizacao_pico_pontuado, deficit_n1_pontuado",
+      "n_uc": 34247.0
+    },
+    {
+      "se": "167",
+      "nome": "SE RONDONOPOLIS I CIDADE 138 KV",
+      "quadrante": "monitorar: condição boa, alta consequência",
+      "risco": 30.9,
+      "fatores_saude": "idade_anos, utilizacao_pico_pontuado",
+      "n_uc": 102073.0
+    },
+    {
+      "se": "197",
+      "nome": "SE ARIPUANA 138 KV",
+      "quadrante": "agir: ampliar/substituir",
+      "risco": 29.1,
+      "fatores_saude": "eventos_se_por_100k_uc, idade_anos",
+      "n_uc": 22568.0
+    },
+    {
+      "se": "134",
+      "nome": "SE SOZINHO 138 KV",
+      "quadrante": "planejar: condição ruim, baixa consequência",
+      "risco": 27.8,
+      "fatores_saude": "deficit_n1_pontuado, utilizacao_pico_pontuado",
+      "n_uc": 2401.0
+    },
+    {
+      "se": "62",
+      "nome": "SE SORRISO RURAL 69 KV",
+      "quadrante": "planejar: condição ruim, baixa consequência",
+      "risco": 26.7,
+      "fatores_saude": "eventos_se_por_100k_uc, idade_anos",
+      "n_uc": 26713.0
+    },
+    {
+      "se": "161",
+      "nome": "SE PARANATINGA 138 KV",
+      "quadrante": "planejar: condição ruim, baixa consequência",
+      "risco": 25.9,
+      "fatores_saude": "eventos_se_por_100k_uc, idade_anos",
+      "n_uc": 13097.0
+    },
+    {
+      "se": "85",
+      "nome": "SE SINOP CENTRO 138 KV",
+      "quadrante": "monitorar: condição boa, alta consequência",
+      "risco": 25.8,
+      "fatores_saude": "utilizacao_pico_pontuado, idade_anos",
+      "n_uc": 58862.0
+    },
+    {
+      "se": "49",
+      "nome": "SE POCONE 138 KV",
+      "quadrante": "planejar: condição ruim, baixa consequência",
+      "risco": 25.7,
+      "fatores_saude": "deficit_n1_pontuado, utilizacao_pico_pontuado",
+      "n_uc": 15711.0
+    },
+    {
+      "se": "136",
+      "nome": "SE FERRONORTE 138 KV",
+      "quadrante": "monitorar: condição boa, alta consequência",
+      "risco": 25.3,
+      "fatores_saude": "deficit_n1_pontuado, utilizacao_pico_pontuado",
+      "n_uc": 21008.0
+    }
+  ],
+  "top10_frac_rs_risco": 0.19693026111753056,
+  "top10_frac_uc": 0.1792717363352463,
+  "rs_risco_total_ano": 4832572.743951585,
+  "rs_eventos_se_social_total": 3989373.920233333,
+  "rs_ens_n1_total": 843198.8237182527,
+  "ampliacoes_candidatas": 29,
+  "mva_ampliacao_total": 271.2128586089413,
+  "capex_ampliacao_total_rs": 54242571.72178826,
+  "ampliacoes_bc_maior_1": 0,
+  "breakeven_horas_mediana": 546.1089642312454,
+  "breakeven_horas_p10": 420.3736948291957,
+  "eventos_se_ano_total": 187.33333333333334,
+  "chi_eventos_se_ano_total": 671272.7444444443,
+  "frac_chi_mt_em_eventos_se": 0.025962417214482406,
+  "ses_top10_risco_um_trafo": 5,
+  "sensibilidade_pesos": {
+    "spearman_mediano": 0.9162735998179035,
+    "spearman_p05": 0.7910709543620936,
+    "top_k": 10,
+    "top_k_estaveis_80pct": 4
+  },
+  "sensibilidade_fator_carga": {
+    "fc_0.62": {
+      "spearman_risco": 0.9532872191100038,
+      "top10_em_comum": 8,
+      "ses_sem_folga_n1": 45,
+      "ses_sem_folga_n1_com_2mais_trafos": 10
+    },
+    "fc_0.82": {
+      "spearman_risco": 0.9790589157677765,
+      "top10_em_comum": 9,
+      "ses_sem_folga_n1": 37,
+      "ses_sem_folga_n1_com_2mais_trafos": 2
+    }
+  }
+}
