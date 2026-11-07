@@ -10,6 +10,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from sehealth import qualidade
+
 
 def score(x: pd.Series, bom: float, ruim: float, log: bool = False) -> pd.Series:
     x = pd.to_numeric(x, errors="coerce").astype(float)
@@ -29,6 +31,7 @@ def media_ponderada(scores: pd.DataFrame, pesos: dict[str, float]) -> pd.Series:
 
 def calcular(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     """Adiciona colunas score_*, saude, criticidade, risco, quadrante e fatores principais."""
+    qualidade.verificar_pesos(cfg)
     out = df.copy()
     for nome, p in cfg["scores"].items():
         if nome in out:

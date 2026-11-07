@@ -6,7 +6,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from sehealth import cache as K
 from sehealth import carregamento as C
+from sehealth import config
 from sehealth import dados as D
 from sehealth import eventos as E
 from sehealth import topologia as T
@@ -41,8 +43,10 @@ def montar(cfg: dict, ano: int, eventos: pd.DataFrame, anos_historico: list[int]
     d, el = cfg["dados"], cfg["eletrico"]
     cache, interim = Path(d["cache_bdgd"]), Path(d["interim_gridrisk"])
     fc = fator_carga or el["fator_carga_se"]
-    trafos = D.trafos_se(cache, ano, el["tensoes_secundario_mt"], el["sobrecarga_emergencia"])
-    alim = D.alimentadores(cache, interim, ano)
+    K.verificar_distribuidora(cache, ano, d.get("cod_aneel"))
+    opt_alim = config.opcoes_alimentador(cfg)
+    trafos = D.trafos_se(cache, ano, **config.opcoes_trafos(cfg))
+    alim = D.alimentadores(cache, interim, ano, **opt_alim)
     carga = C.carga_mensal_se(alim, ano)
     df = C.indicadores_carregamento(carga, C.capacidade_se(trafos), fc, el["fator_potencia"])
     df["cobertura_vinculo"] = C.cobertura_vinculo(alim)
@@ -54,7 +58,7 @@ def montar(cfg: dict, ano: int, eventos: pd.DataFrame, anos_historico: list[int]
 
     # crescimento: energia do snapshot vs. dois anos antes (mesma SE)
     try:
-        alim_ant = D.alimentadores(cache, interim, ano - 2)
+        alim_ant = D.alimentadores(cache, interim, ano - 2, **opt_alim)
         e_ant = C.carga_mensal_se(alim_ant, ano - 2).mean(axis=1)
         df["crescimento_aa"] = C.crescimento(df.mw_medio, e_ant, 2)
     except FileNotFoundError:

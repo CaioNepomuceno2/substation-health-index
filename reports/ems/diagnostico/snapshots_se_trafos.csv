@@ -1,0 +1,9 @@
+ano,modelo,camada_trafos,n_sub,n_ctmt,n_trafos_se,cod_id_repetido,n_trafos_mt,n_trafos_outra_tensao,n_ses_com_trafo_mt,n_ses_1_trafo_mt,n_ses_2mais_trafos_mt,pot_nominal_mt_mva,pot_nominal_mediana_mva
+2018,M10,UNTRS,118,315,92,,,,,,,,
+2019,M10,UNTRS,119,423,91,,,,,,,,
+2020,M10,UNTRS,126,318,95,,,,,,,,
+2021,V10/V11,UNTRAT,131,320,105,0.0,99.0,6.0,55.0,23.0,32.0,2537.25,25.0
+2022,V10/V11,UNTRAT,113,349,117,0.0,113.0,4.0,61.0,26.0,35.0,2944.5,25.0
+2023,V10/V11,UNTRAT,108,354,111,0.0,106.0,5.0,57.0,24.0,33.0,2661.0,25.0
+2024,V10/V11,UNTRAT,111,359,113,0.0,108.0,5.0,59.0,25.0,34.0,2716.0,25.0
+2025,V10/V11,UNTRAT,106,362,115,0.0,110.0,5.0,60.0,27.0,33.0,2776.0,25.0

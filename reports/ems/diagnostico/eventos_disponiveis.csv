@@ -1,0 +1,8 @@
+resultado,limite,eventos,ses_com_evento,ses_com_evento_no_universo,observacao
+alimentadores por SE (snapshot do universo),-,354.0,62,48,ses_com_evento_no_universo = SEs com 3 ou mais circuitos
+"interrupções de MT (internas, não programadas) ligadas a SE",-,230286.0,60,57,"anos [2024, 2025]"
+eventos de SE (circuitos simultâneos no mesmo minuto),>= 2,3455.0,56,55,"anos [2024, 2025]; o índice usa >= 3"
+eventos de SE (circuitos simultâneos no mesmo minuto),>= 3,333.0,45,44,"anos [2024, 2025]; o índice usa >= 3"
+eventos de SE (circuitos simultâneos no mesmo minuto),>= 4,84.0,25,24,"anos [2024, 2025]; o índice usa >= 3"
+aberturas por disjuntor em 2026,-,577.0,31,18,interrupções de MT internas e não programadas com o elemento indicado
+universo de SEs,-,,57,57,snapshot 2023

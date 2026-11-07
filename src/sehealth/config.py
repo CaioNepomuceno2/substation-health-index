@@ -20,6 +20,8 @@ from pathlib import Path
 
 import yaml
 
+from sehealth import qualidade
+
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PADRAO = ROOT / "configs" / "premissas.yaml"
 CONFIG_ENV = "SEHEALTH_CONFIG"
@@ -93,6 +95,22 @@ def validacao(cfg: dict) -> dict:
     return {**VALIDACAO_MT, **cfg.get("validacao", {})}
 
 
+def opcoes_alimentador(cfg: dict) -> dict:
+    """Como ligar alimentador a SE e a trafo (``dados.alimentadores``); o padrão é o de MT."""
+    el = cfg["eletrico"]
+    return {"se_do_alimentador": el.get("se_do_alimentador", "trafo"),
+            "vinculo": el.get("vinculo_alimentador", "trafo"),
+            "tensoes_mt": [str(t) for t in el["tensoes_secundario_mt"]]}
+
+
+def opcoes_trafos(cfg: dict) -> dict:
+    """Tensões de secundário de MT e capacidade de emergência (``dados.trafos_se``); o padrão é o de MT."""
+    el = cfg["eletrico"]
+    return {"tensoes_mt": [str(t) for t in el["tensoes_secundario_mt"]],
+            "sobrecarga_emergencia": el["sobrecarga_emergencia"],
+            "capacidade_emergencia": el.get("capacidade_emergencia", "estagios")}
+
+
 def reports(cfg: dict) -> Path:
     return Path(cfg["paths"]["reports"])
 
@@ -153,6 +171,7 @@ def carregar(path: str | Path | None = None, resolver_valor: bool = True) -> dic
         d[k] = _abs(d[k])
     cfg["paths"] = {k: _abs(cfg.get("paths", {}).get(k, v)) for k, v in PATHS_MT.items()}
     verificar_saidas(cfg)
+    qualidade.verificar_pesos(cfg)
     v = cfg.setdefault("valor", {})
     if v.get("valor_json"):
         v["valor_json"] = _abs(v["valor_json"])

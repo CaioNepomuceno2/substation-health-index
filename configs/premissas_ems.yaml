@@ -52,11 +52,29 @@ bdgd:
 
 eletrico:
   fator_potencia: 0.92       # ILUSTRATIVO (igual a MT)
-  fator_carga_se: 0.72       # ILUSTRATIVO (igual a MT); sensibilidade abaixo
+  fator_carga_se: 0.72       # ILUSTRATIVO (igual a MT); só há energia mensal em MS também
   fator_carga_sensibilidade: [0.62, 0.82]
   sobrecarga_emergencia: 1.0
-  tensoes_secundario_mt: ["38", "49", "72"]
+  # Rederivados de MS (docs/decisoes_ems.md, seções 3 a 5):
+  tensoes_secundario_mt: ["49", "72"]   # 13,8 kV e 34,5 kV; o código 38 de MT não existe em MS; 82 (69 kV) supre outras SEs
+  se_do_alimentador: ctmt               # SE = CTMT.SUB (bate com a SE gravada nas interrupções de 2026 em 99,7%); MT: trafo
+  vinculo_alimentador: se               # coerente = a SE tem trafo de MT na tensão do circuito; MT: o trafo apontado
+  capacidade_emergencia: nominal        # os estágios F01/F02 de 2025 são 1,25x e 1,5x em 100% dos trafos; MT: estagios
   cobertura_minima_vinculo: 0.8
+
+# Portas de qualidade (a) e (b), pré-registradas em docs/decisoes_ems.md, seção 2
+qualidade:
+  idade_trafo_confiavel: false           # DAT_CON do mesmo trafo muda entre cadastros: idade_anos não entra na saúde
+  validacao: {min_ses_com_evento: 30, min_eventos: 200}
+
+validacao:
+  anos_diagnostico_ampliacao: [2021, 2022, 2023]
+  ano_disjuntor: 2026
+  elemento_disjuntor: DISJUNTOR
+  # só entram na validação as SEs do índice cujo código existe no snapshot em que o resultado é medido
+  so_ses_presentes_no_resultado: true
+  # porta (c): mínimos para publicar a comparação com as ampliações reais (docs/decisoes_ems.md, seção 2.4)
+  portas_ampliacao: {min_sinalizadas: 10, min_nao_sinalizadas: 10, min_pct_pareadas: 80}
 
 eventos:
   min_alimentadores_evento_se: 3
