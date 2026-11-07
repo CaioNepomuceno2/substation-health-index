@@ -1,0 +1,183 @@
+{
+  "ano": 2025,
+  "n_ses": 59,
+  "n_uc": 1375917.0,
+  "ses_carregamento_incerto": 12,
+  "ses_um_trafo": 27,
+  "uc_em_ses_um_trafo": 335405.0,
+  "ses_sem_folga_n1_pontuadas": 25,
+  "ses_sem_folga_n1_com_2mais_trafos": 9,
+  "ses_utilizacao_acima_80pct": 0,
+  "ses_utilizacao_acima_100pct": 0,
+  "ses_fluxo_reverso_anual": 0,
+  "ses_com_meses_fluxo_reverso": 3,
+  "uc_sem_transferencia": 646014.0,
+  "frac_uc_sem_transferencia": 0.46951523965471753,
+  "quadrantes": {
+    "agir: ampliar/substituir": {
+      "n_ses": 5,
+      "n_uc": 136925.0,
+      "rs_risco": 1135236.0
+    },
+    "manter": {
+      "n_ses": 23,
+      "n_uc": 331523.0,
+      "rs_risco": 717623.0
+    },
+    "monitorar: condição boa, alta consequência": {
+      "n_ses": 23,
+      "n_uc": 842566.0,
+      "rs_risco": 1924637.0
+    },
+    "planejar: condição ruim, baixa consequência": {
+      "n_ses": 8,
+      "n_uc": 64903.0,
+      "rs_risco": 408473.0
+    }
+  },
+  "top10_risco": [
+    {
+      "se": "94",
+      "nome": "AMAMBAI",
+      "quadrante": "agir: ampliar/substituir",
+      "risco": 51.3,
+      "fatores_saude": "eventos_se_por_100k_uc, perdas_z",
+      "n_uc": 27092.0
+    },
+    {
+      "se": "22",
+      "nome": "BATAGUASSU",
+      "quadrante": "agir: ampliar/substituir",
+      "risco": 38.7,
+      "fatores_saude": "eventos_se_por_100k_uc",
+      "n_uc": 12541.0
+    },
+    {
+      "se": "33",
+      "nome": "CAMAPUA",
+      "quadrante": "planejar: condição ruim, baixa consequência",
+      "risco": 36.2,
+      "fatores_saude": "eventos_se_por_100k_uc, perdas_z",
+      "n_uc": 8594.0
+    },
+    {
+      "se": "82",
+      "nome": "AQUIDAUANA",
+      "quadrante": "agir: ampliar/substituir",
+      "risco": 32.7,
+      "fatores_saude": "deficit_n1_pontuado, eventos_se_por_100k_uc",
+      "n_uc": 38958.0
+    },
+    {
+      "se": "27",
+      "nome": "CHAPADAO DO SUL",
+      "quadrante": "agir: ampliar/substituir",
+      "risco": 32.1,
+      "fatores_saude": "eventos_se_por_100k_uc",
+      "n_uc": 18767.0
+    },
+    {
+      "se": "78",
+      "nome": "DOURADOS ALVORADA",
+      "quadrante": "agir: ampliar/substituir",
+      "risco": 32.1,
+      "fatores_saude": "deficit_n1_pontuado, eventos_se_por_100k_uc",
+      "n_uc": 39567.0
+    },
+    {
+      "se": "86",
+      "nome": "DOURADOS INDUSTRIAL",
+      "quadrante": "planejar: condição ruim, baixa consequência",
+      "risco": 26.0,
+      "fatores_saude": "deficit_n1_pontuado, eventos_se_por_100k_uc",
+      "n_uc": 25184.0
+    },
+    {
+      "se": "72",
+      "nome": "NOVA ANDRADINA",
+      "quadrante": "monitorar: condição boa, alta consequência",
+      "risco": 24.8,
+      "fatores_saude": "deficit_n1_pontuado, eventos_se_por_100k_uc",
+      "n_uc": 35205.0
+    },
+    {
+      "se": "4",
+      "nome": "CAMPO GRANDE JOSE ABRAO",
+      "quadrante": "manter",
+      "risco": 24.4,
+      "fatores_saude": "deficit_n1_pontuado, utilizacao_pico_pontuado",
+      "n_uc": 46982.0
+    },
+    {
+      "se": "100",
+      "nome": "COXIM",
+      "quadrante": "monitorar: condição boa, alta consequência",
+      "risco": 23.2,
+      "fatores_saude": "eventos_se_por_100k_uc, perdas_z",
+      "n_uc": 26566.0
+    }
+  ],
+  "top10_frac_rs_risco": 0.4103060320547837,
+  "top10_frac_uc": 0.20310527451873914,
+  "rs_risco_total_ano": 4185969.235069201,
+  "rs_eventos_se_social_total": 3629729.847043394,
+  "rs_ens_n1_total": 556239.3880258064,
+  "ampliacoes_candidatas": 25,
+  "mva_ampliacao_total": 214.54629521613055,
+  "capex_ampliacao_total_rs": 42909259.04322611,
+  "ampliacoes_bc_maior_1": 0,
+  "breakeven_horas_mediana": 671.7469608200614,
+  "breakeven_horas_p10": 470.818522724955,
+  "eventos_se_ano_total": 170.33333333333331,
+  "chi_eventos_se_ano_total": 652782.357037037,
+  "frac_chi_mt_em_eventos_se": 0.034014337525197426,
+  "ses_top10_risco_um_trafo": 7,
+  "sensibilidade_pesos": {
+    "spearman_mediano": 0.9571570518440587,
+    "spearman_p05": 0.8790665731486353,
+    "top_k": 10,
+    "top_k_estaveis_80pct": 7
+  },
+  "sensibilidade_fator_carga": {
+    "fc_0.62": {
+      "spearman_risco": 0.9399146647963061,
+      "top10_em_comum": 7,
+      "ses_sem_folga_n1": 41,
+      "ses_sem_folga_n1_com_2mais_trafos": 15
+    },
+    "fc_0.82": {
+      "spearman_risco": 0.9805950084750717,
+      "top10_em_comum": 8,
+      "ses_sem_folga_n1": 31,
+      "ses_sem_folga_n1_com_2mais_trafos": 5
+    }
+  },
+  "sensibilidades_da_configuracao": {
+    "estagios_cadastrados": {
+      "mudancas": {
+        "capacidade_emergencia": "estagios"
+      },
+      "ses": 59,
+      "spearman_risco": 0.9623589923432111,
+      "top10_em_comum": 9,
+      "ses_sem_folga_n1": 29,
+      "ses_sem_folga_n1_com_2mais_trafos": 3,
+      "ses_carregamento_incerto": 12
+    },
+    "vinculo_regra_mt": {
+      "mudancas": {
+        "se_do_alimentador": "trafo",
+        "vinculo_alimentador": "trafo"
+      },
+      "ses": 50,
+      "spearman_risco": 0.9174950775584692,
+      "top10_em_comum": 7,
+      "ses_sem_folga_n1": 28,
+      "ses_sem_folga_n1_com_2mais_trafos": 7,
+      "ses_carregamento_incerto": 14
+    }
+  },
+  "origem_efeito": "transportado de MT",
+  "rs_por_chi_social": 5.560398206101415,
+  "rs_por_chi_compensacao": 2.1484142591061692
+}

@@ -25,13 +25,17 @@ from sehealth import topologia as T
 from sehealth import validacao as Va
 
 
-def _trafos_mt(cache: Path, ano: int, tensoes_mt: list[str]) -> pd.DataFrame:
+def _em_branco(s: pd.Series) -> pd.Series:
+    return s.astype("string").str.strip().fillna("").eq("")
+
+
+def _trafos_mt(cache: Path, ano: int, tensoes_mt: list[str], excluir_se_sem_codigo: bool = False) -> pd.DataFrame:
     """UNTRAT + EQTRAT, com os trafos de secundário de MT marcados em ``eh_mt``."""
     u = D.camada(cache, ano, "UNTRAT")
     e = D.camada(cache, ano, "EQTRAT")[["UNI_TR_AT", "TEN_PRI", "TEN_SEC"]].drop_duplicates("UNI_TR_AT")
     t = u.merge(e, left_on="COD_ID", right_on="UNI_TR_AT", how="left")
     t["eh_mt"] = t.TEN_SEC.astype("string").str.strip().isin(tensoes_mt)
-    return t
+    return t[~_em_branco(t.SUB)] if excluir_se_sem_codigo else t
 
 
 def _camadas_zip(zip_path: Path) -> dict[str, int]:
@@ -49,12 +53,13 @@ def snapshots_se_trafos(
     zips: Path | None = None,
     itens: dict | None = None,
     padrao_zip: str = K.PADRAO_ZIP,
+    excluir_se_sem_codigo: bool = False,
 ) -> pd.DataFrame:
     """Subestações, trafos de SE e circuitos por snapshot. Os snapshots M10 (sem UNTRAT) vêm direto do zip."""
     linhas = []
     for ano in anos_snapshot:
         if ano in anos_cache and (Path(cache) / str(ano) / "UNTRAT.parquet").exists():
-            t = _trafos_mt(cache, ano, tensoes_mt)
+            t = _trafos_mt(cache, ano, tensoes_mt, excluir_se_sem_codigo)
             pot = pd.to_numeric(t.POT_NOM, errors="coerce")
             mt = t[t.eh_mt]
             n_por_se = mt.groupby("SUB").size()
@@ -108,7 +113,12 @@ def tensoes(cache: Path, anos: list[int]) -> pd.DataFrame:
 
 
 def vinculo_alimentador_trafo(
-    cache: Path, interim: Path, anos: list[int], tensoes_mt: list[str], cobertura_minima: float
+    cache: Path,
+    interim: Path,
+    anos: list[int],
+    tensoes_mt: list[str],
+    cobertura_minima: float,
+    excluir_se_sem_codigo: bool = False,
 ) -> pd.DataFrame:
     """Como o circuito (CTMT) se liga ao trafo e à SE, pela regra de MT e pela regra de MS (``decisoes_ems.md``)."""
     linhas = []
@@ -119,12 +129,14 @@ def vinculo_alimentador_trafo(
         achado = c.UNI_TR_AT.isin(u.COD_ID)
         sub_tr = c.merge(u.rename(columns={"COD_ID": "UNI_TR_AT", "SUB": "SUB_TR"}), on="UNI_TR_AT", how="left")
         diverge = sub_tr.SUB_TR.notna() & (sub_tr.SUB != sub_tr.SUB_TR)
-        ses_mt = set(_trafos_mt(cache, ano, tensoes_mt).query("eh_mt").SUB.astype(str))
+        ses_mt = set(_trafos_mt(cache, ano, tensoes_mt, excluir_se_sem_codigo).query("eh_mt").SUB.astype(str))
         prefixo = c.NOME.astype(str).str.strip().str[:3]
         subs_por_prefixo = c.groupby(prefixo).SUB.nunique()
         linha = {
             "ano": ano,
             "n_ctmt": len(c),
+            "ctmt_sub_em_branco": int(_em_branco(c.SUB).sum()),
+            "untrat_sub_em_branco": int(_em_branco(u.SUB).sum()),
             "uni_tr_at_vazio": int(vazio.sum()),
             "uni_tr_at_fora_de_untrat": int((~achado & ~vazio).sum()),
             "ctmt_sub_diferente_do_sub_do_trafo": int(diverge.sum()),
@@ -135,7 +147,9 @@ def vinculo_alimentador_trafo(
             ("mt", {"se_do_alimentador": "trafo", "vinculo": "trafo"}),
             ("ms", {"se_do_alimentador": "ctmt", "vinculo": "se"}),
         ]:
-            a = D.alimentadores(cache, interim, ano, tensoes_mt=tensoes_mt, **opt)
+            a = D.alimentadores(
+                cache, interim, ano, tensoes_mt=tensoes_mt, excluir_se_sem_codigo=excluir_se_sem_codigo, **opt
+            )
             e = a[[f"ene_{m}" for m in D.MESES]].abs().sum(axis=1)
             cob = C.cobertura_vinculo(a)
             universo = cob[cob.index.isin(ses_mt)]

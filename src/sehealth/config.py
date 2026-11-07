@@ -100,7 +100,8 @@ def opcoes_alimentador(cfg: dict) -> dict:
     el = cfg["eletrico"]
     return {"se_do_alimentador": el.get("se_do_alimentador", "trafo"),
             "vinculo": el.get("vinculo_alimentador", "trafo"),
-            "tensoes_mt": [str(t) for t in el["tensoes_secundario_mt"]]}
+            "tensoes_mt": [str(t) for t in el["tensoes_secundario_mt"]],
+            "excluir_se_sem_codigo": bool(el.get("excluir_se_sem_codigo", False))}
 
 
 def opcoes_trafos(cfg: dict) -> dict:
@@ -108,7 +109,8 @@ def opcoes_trafos(cfg: dict) -> dict:
     el = cfg["eletrico"]
     return {"tensoes_mt": [str(t) for t in el["tensoes_secundario_mt"]],
             "sobrecarga_emergencia": el["sobrecarga_emergencia"],
-            "capacidade_emergencia": el.get("capacidade_emergencia", "estagios")}
+            "capacidade_emergencia": el.get("capacidade_emergencia", "estagios"),
+            "excluir_se_sem_codigo": bool(el.get("excluir_se_sem_codigo", False))}
 
 
 def reports(cfg: dict) -> Path:

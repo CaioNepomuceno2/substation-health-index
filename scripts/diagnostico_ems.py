@@ -58,13 +58,14 @@ def main(argv=None):
             cache_campos["campos"] = Dg.campos_cadastro(cache, anos, tens)
         return cache_campos["campos"]
 
+    sem_codigo = opt_a["excluir_se_sem_codigo"]
     tabelas = {
         "snapshots_se_trafos": lambda: Dg.snapshots_se_trafos(
-            cache, snaps, anos, tens, zips, b["snapshots"], padrao_zip
+            cache, snaps, anos, tens, zips, b["snapshots"], padrao_zip, sem_codigo
         ),
         "tensoes": lambda: Dg.tensoes(cache, anos),
         "vinculo_alimentador_trafo": lambda: Dg.vinculo_alimentador_trafo(
-            cache, interim, anos, tens, cfg["eletrico"]["cobertura_minima_vinculo"]
+            cache, interim, anos, tens, cfg["eletrico"]["cobertura_minima_vinculo"], sem_codigo
         ),
         "vinculo_se_registrada": lambda: Dg.vinculo_se_registrada(
             cache, interim, interr, [a for a in anos if a >= val["ano_disjuntor"] - 3], val["ano_disjuntor"]

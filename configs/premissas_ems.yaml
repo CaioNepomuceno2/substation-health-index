@@ -60,12 +60,20 @@ eletrico:
   se_do_alimentador: ctmt               # SE = CTMT.SUB (bate com a SE gravada nas interrupções de 2026 em 99,7%); MT: trafo
   vinculo_alimentador: se               # coerente = a SE tem trafo de MT na tensão do circuito; MT: o trafo apontado
   capacidade_emergencia: nominal        # os estágios F01/F02 de 2025 são 1,25x e 1,5x em 100% dos trafos; MT: estagios
+  excluir_se_sem_codigo: true           # 5 a 8 circuitos e 5 a 7 trafos de 2023 a 2025 têm SE em branco (seção 13)
   cobertura_minima_vinculo: 0.8
 
 # Portas de qualidade (a) e (b), pré-registradas em docs/decisoes_ems.md, seção 2
 qualidade:
   idade_trafo_confiavel: false           # DAT_CON do mesmo trafo muda entre cadastros: idade_anos não entra na saúde
+  rank_entre_carregamento_confiavel: true   # coluna extra no índice (seção 13); o ranking principal não muda
+  crescimento_energia_confiavel: false   # a energia dos circuitos oscila entre cadastros (seção 5.1): sem crescimento_aa
   validacao: {min_ses_com_evento: 30, min_eventos: 200}
+
+# Sensibilidades declaradas de antemão (seção 2.5): saem ao lado do resultado principal e nunca o substituem
+sensibilidades:
+  estagios_cadastrados: {capacidade_emergencia: estagios}                       # capacidade pelo maior estágio de ventilação
+  vinculo_regra_mt: {se_do_alimentador: trafo, vinculo_alimentador: trafo}      # SE e vínculo pelo trafo apontado
 
 validacao:
   anos_diagnostico_ampliacao: [2021, 2022, 2023]

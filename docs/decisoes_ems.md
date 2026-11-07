@@ -22,14 +22,14 @@ segue valendo para MT).
 | 4 | Tensões | Secundário dos trafos de SE: 49 e 72 (MT) e 82 (5 trafos que suprem outras SEs). O código 38 de MT não existe em MS | `tensoes_secundario_mt: ["49", "72"]` |
 | 5 | Potência | Mediana de 25 MVA em todos os anos; sem a anomalia de unidade de 2021 que MT tem | `normalizar_potencia` mantida (não dispara em MS) |
 | 6 | SE do circuito | A `subestacao` gravada nas interrupções de 2026 é igual a `CTMT.SUB` em 99,6% ou mais; é igual à SE do trafo apontado em só 74% a 88%, e onde as duas divergem acompanha `CTMT.SUB` em 100% | SE do circuito = `CTMT.SUB` (`se_do_alimentador: ctmt`) |
-| 7 | Vínculo coerente | Pela regra de MT (tensão do trafo apontado), só 67% a 89% dos circuitos são coerentes | Coerente = a SE do circuito tem trafo de MT na tensão do circuito (84% a 91% dos circuitos) |
+| 7 | Vínculo coerente | Pela regra de MT (tensão do trafo apontado), só 68% a 89% dos circuitos são coerentes | Coerente = a SE do circuito tem trafo de MT na tensão do circuito (84% a 91% dos circuitos) |
 | 8 | Capacidade de emergência | Em 2025, `POT_F01` e `POT_F02` são 1,25x e 1,5x da nominal em 100% dos trafos; em 2021 a 2024, 24% a 33% dos trafos não têm estágio e as razões variam | Capacidade = potência nominal (`capacidade_emergencia: nominal`); estágios cadastrados entram só como sensibilidade |
 | 9 | Idade | A data de conexão do mesmo trafo muda em 35% (2022→2023) e 42% (2024→2025) dos casos | **Fora da nota de saúde** (porta (a)); `idade_anos` não é publicada |
 | 10 | Perdas no ferro | 100% de cobertura; 4% e 9% dos trafos mudam de valor entre cadastros | Mantida (passa os critérios) |
 | 11 | Transferência | Os dois pontos de 71% a 88% das chaves NA caem em segmentos de MT, nos 5 snapshots | Topologia nos 5 snapshots (em MT, só 2024 e 2025), então o índice de 2023 também tem a rota de transferência |
-| 12 | Interrupções | De 2022 a 2025, 99,8% ou mais ligam a circuito e SE; em 2026, 84,2%; março de 2026 não tem nenhum registro | Janelas de MT mantidas; 2026 só como resultado parcial |
-| 13 | Eventos de SE | 333 eventos com 3+ circuitos em 45 SEs em 2024-2025; 48 das 62 SEs de 2023 têm 3+ circuitos | Definição de MT (3+ circuitos no mesmo minuto) mantida |
-| 14 | Validação com eventos | Das 57 SEs do universo de 2023, 44 têm evento de SE em 2024-2025 e 18 têm abertura por disjuntor em 2026 | **Porta (b) por resultado**, avaliada pelo script sobre o índice real |
+| 12 | Interrupções | De 2019 a 2025, 99,1% ou mais ligam a circuito e 95,7% ou mais a uma SE (a diferença são circuitos de SE com código em branco, seção 13); em 2026, 84,2% ligam a circuito; março de 2026 não tem nenhum registro | Janelas de MT mantidas; 2026 só como resultado parcial |
+| 13 | Eventos de SE | 333 eventos com 3+ circuitos em 45 SEs em 2024-2025; 47 das 61 SEs de 2023 têm 3+ circuitos | Definição de MT (3+ circuitos no mesmo minuto) mantida |
+| 14 | Validação com eventos | Das 56 SEs do universo de 2023, 44 têm evento de SE em 2024-2025 e 18 têm abertura por disjuntor em 2026 | **Porta (b) por resultado**, avaliada pelo script sobre o índice real |
 | 15 | Escalas dos indicadores | As entradas de consumidores e de energia ficam abaixo do limiar "ruim" em todas as SEs | Limiares de MT mantidos (escala absoluta) |
 | 16 | R$ por CHI | `valor.json` de MS do `automation-impact`: R$ 5,56 (social) e R$ 2,15 (compensação), `origem_efeito = "transportado de MT"` | Lidos desse arquivo; o rótulo é repetido em toda saída de R$; os R$ 5,94 e R$ 1,93 de MT nunca entram |
 | 17 | Energia mensal dos circuitos | A ordem das SEs por energia se mantém entre snapshots (Spearman de 0,95 a 0,97), mas o nível oscila: a energia total cai de 6,3 TWh (2023) para 4,9 TWh (2025) com mais UCs, e 51% dos circuitos caem mais de 10% em 2025 | Carregamento lido como ordem entre SEs dentro de cada snapshot; o crescimento de energia não é publicado em MS; sem comparar níveis de carregamento entre snapshots |
@@ -153,12 +153,12 @@ publicada**: sai só a contagem e o motivo, em `reports/ems/validacao_portas.jso
 de qualquer forma. Quem avalia é o `scripts/03_validacao.py`, sobre o índice real (`qualidade.porta_validacao`, com
 teste). A tabela abaixo é só a contagem prévia, sem índice
 ([`eventos_disponiveis.csv`](../reports/ems/diagnostico/eventos_disponiveis.csv)); o universo é o conjunto de SEs de 2023
-com trafo de MT e circuitos (57 SEs), um pouco maior que o índice:
+com trafo de MT e circuitos (56 SEs), um pouco maior que o índice:
 
 | Resultado (janela de validação) | Eventos | SEs com pelo menos 1 evento | Dessas, SEs do universo de 2023 |
 |---|---|---|---|
 | Eventos de SE com 3+ circuitos no mesmo minuto, 2024-2025 (o do índice) | 333 | 45 | 44 |
-| Eventos de SE com 2+ circuitos (só informação) | 3.455 | 56 | 55 |
+| Eventos de SE com 2+ circuitos (só informação) | 3.433 | 55 | 54 |
 | Eventos de SE com 4+ circuitos (só informação) | 84 | 25 | 24 |
 | Aberturas por disjuntor, jan-jul/2026 (sem março) | 577 | 31 | 18 |
 
@@ -189,9 +189,9 @@ secundário de MT" são os trafos de SE cujo `TEN_SEC` é 49 ou 72:
 | 2020 | M10 (UNTRS) | 126 | 318 | 95 | - | - | - | - | - |
 | 2021 | V10/V11 (UNTRAT) | 131 | 320 | 105 | 99 | 55 | 23 | 32 | 2.537 |
 | 2022 | V10/V11 (UNTRAT) | 113 | 349 | 117 | 113 | 61 | 26 | 35 | 2.944 |
-| 2023 | V10/V11 (UNTRAT) | 108 | 354 | 111 | 106 | 57 | 24 | 33 | 2.661 |
-| 2024 | V10/V11 (UNTRAT) | 111 | 359 | 113 | 108 | 59 | 25 | 34 | 2.716 |
-| 2025 | V10/V11 (UNTRAT) | 106 | 362 | 115 | 110 | 60 | 27 | 33 | 2.776 |
+| 2023 | V10/V11 (UNTRAT) | 108 | 354 | 106 | 101 | 56 | 24 | 32 | 2.483 |
+| 2024 | V10/V11 (UNTRAT) | 111 | 359 | 106 | 101 | 57 | 25 | 32 | 2.528 |
+| 2025 | V10/V11 (UNTRAT) | 106 | 362 | 109 | 104 | 59 | 27 | 32 | 2.618 |
 
 * A camada `SUB` tem de 106 a 131 subestações por snapshot, mas só de 55 a 61 têm trafo de SE com secundário de MT no
   cadastro. O índice usa só essas, quando também têm circuitos.
@@ -238,12 +238,12 @@ secundário. Em MS esse ponteiro é pior que em MT
 | `UNI_TR_AT` vazio | 0 | 10 | 0 | 56 | 6 |
 | `UNI_TR_AT` que não existe em `UNTRAT` | 8 | 0 | 51 | 0 | 0 |
 | `CTMT.SUB` diferente da SE do trafo apontado | 2 | 17 | 35 | 34 | 36 |
-| **Regra de MT** (trafo apontado): circuitos coerentes | 88,8% | 79,9% | 68,4% | 66,6% | 77,3% |
-| Regra de MT: energia nos circuitos coerentes | 91,3% | 82,8% | 70,9% | 71,5% | 82,4% |
-| Regra de MT: SEs com cobertura abaixo de 0,8 | 7 de 50 | 15 de 51 | 18 de 49 | 21 de 50 | 15 de 51 |
-| **Regra de MS** (SE do circuito): circuitos coerentes | 90,6% | 84,2% | 88,1% | 87,5% | 89,8% |
-| Regra de MS: energia nos circuitos coerentes | 93,5% | 87,1% | 90,7% | 90,6% | 92,3% |
-| Regra de MS: SEs com cobertura abaixo de 0,8 | 6 de 50 | 11 de 56 | 11 de 57 | 13 de 58 | 12 de 60 |
+| **Regra de MT** (trafo apontado): circuitos coerentes | 88,8% | 79,9% | 69,9% | 67,5% | 78,4% |
+| Regra de MT: energia nos circuitos coerentes | 91,3% | 82,8% | 74,2% | 72,3% | 83,2% |
+| Regra de MT: SEs com cobertura abaixo de 0,8 | 7 de 50 | 15 de 51 | 17 de 48 | 20 de 49 | 14 de 50 |
+| **Regra de MS** (SE do circuito): circuitos coerentes | 90,6% | 84,2% | 87,9% | 87,3% | 89,6% |
+| Regra de MS: energia nos circuitos coerentes | 93,5% | 87,1% | 90,3% | 90,5% | 92,3% |
+| Regra de MS: SEs com cobertura abaixo de 0,8 | 6 de 50 | 11 de 56 | 11 de 56 | 13 de 57 | 12 de 59 |
 
 * O ponteiro `UNI_TR_AT` fica vazio ou aponta para um trafo que não existe no snapshot em 6 a 56 circuitos por ano, e a
   SE do trafo apontado difere de `CTMT.SUB` em 2 a 36 circuitos.
@@ -272,7 +272,7 @@ secundário. Em MS esse ponteiro é pior que em MT
   tem algum trafo de MT com secundário na tensão do circuito (`eletrico.vinculo_alimentador: se`). A energia dos
   circuitos incoerentes continua fora do carregamento, e a SE com menos de 80% da energia em circuitos coerentes fica
   com `carregamento_incerto`, como em MT. Pela regra de MS, 84% a 91% dos circuitos são coerentes
-  (contra 67% a 89% pela regra de MT) e há 6 a 13 SEs com cobertura abaixo de 0,8 por snapshot.
+  (contra 68% a 89% pela regra de MT) e há 6 a 13 SEs com cobertura abaixo de 0,8 por snapshot.
   A regra de MT fica como sensibilidade.
 
 ## 5. Capacidade, perdas, idade e energia dos circuitos
@@ -358,9 +358,9 @@ dos fusos UTM 21S e 22S de MS não se aplica aqui
 | Normalmente abertas (NA) | 3.858 (3,3%) | 3.983 (3,3%) | 4.181 (3,3%) | 4.243 (3,1%) | 4.688 (2,9%) |
 | NA com os dois pontos (`PAC_1`, `PAC_2`) em segmentos de MT | 71,2% | 82,3% | 82,9% | 84,7% | 87,5% |
 | Pares de circuitos ligados por NA | 1.028 | 1.291 | 1.379 | 1.438 | 1.558 |
-| Pares entre SEs diferentes | 220 | 312 | 320 | 327 | 378 |
-| Circuitos com rota para outra SE | 157 de 320 | 194 de 349 | 193 de 354 | 196 de 359 | 200 de 362 |
-| UCs em circuitos sem rota para outra SE | 50,1% | 47,9% | 46,9% | 46,2% | 45,6% |
+| Pares entre SEs diferentes | 220 | 312 | 315 | 322 | 371 |
+| Circuitos com rota para outra SE | 157 de 320 | 194 de 349 | 187 de 346 | 190 de 354 | 194 de 357 |
+| UCs em circuitos sem rota para outra SE | 50,1% | 47,9% | 46,6% | 47,6% | 46,9% |
 
 * Os dois pontos de uma chave NA caem em segmentos de MT em 71% (2021) a 88% (2025) dos casos; em 2023 são 83%.
   Os pontos que não casam não geram par, então a rota de transferência é um **limite inferior**.
@@ -381,15 +381,16 @@ mais recente até o ano) e a uma SE
 | 2021 | 2019 | 89.363 | 99,1% | 99,1% | 99,5% |
 | 2021 | 2020 | 84.309 | 99,3% | 99,3% | 99,7% |
 | 2021 | 2021 | 73.872 | 99,3% | 99,3% | 99,6% |
-| 2023 | 2021 | 73.872 | 99,2% | 99,2% | 99,6% |
-| 2023 | 2022 | 93.247 | 100,0% | 100,0% | 100,0% |
-| 2023 | 2023 | 95.745 | 100,0% | 100,0% | 100,0% |
-| 2025 | 2023 | 95.745 | 99,9% | 99,9% | 100,0% |
-| 2025 | 2024 | 111.946 | 100,0% | 100,0% | 100,0% |
-| 2025 | 2025 | 118.385 | 100,0% | 100,0% | 100,0% |
-| 2025 | 2026 | 103.373 | 84,2% | 84,2% | 82,4% |
+| 2023 | 2021 | 73.872 | 99,2% | 95,7% | 97,2% |
+| 2023 | 2022 | 93.247 | 100,0% | 96,9% | 98,5% |
+| 2023 | 2023 | 95.745 | 100,0% | 96,8% | 96,6% |
+| 2025 | 2023 | 95.745 | 99,9% | 97,8% | 98,7% |
+| 2025 | 2024 | 111.946 | 100,0% | 97,8% | 98,4% |
+| 2025 | 2025 | 118.385 | 100,0% | 97,9% | 98,5% |
+| 2025 | 2026 | 103.373 | 84,2% | 83,9% | 82,3% |
 
-* De 2019 a 2025 o vínculo é de 99,1% ou mais; a SE é a do circuito (`CTMT.SUB`), então circuito e SE casam juntos.
+* De 2019 a 2025 o vínculo a circuito é de 99,1% ou mais, e o vínculo a uma SE, de 95,7% ou mais. A SE é a do
+  circuito (`CTMT.SUB`); a diferença são os circuitos de SE com código em branco, que ficam de fora (seção 13).
 * **2026:** só 84,2% dos eventos ligam a um circuito de algum snapshot publicado; o resto usa `COD_ID` de um
   cadastro ainda não publicado. O campo `subestacao` de 2026, porém, existe em `SUB.COD_ID` em 99,6% a 99,7%
   dos eventos com circuito (seção 4), e é por ele que as aberturas por disjuntor são ligadas à SE.
@@ -406,23 +407,23 @@ mais recente até o ano) e a uma SE
 
 | Entrada (SEs com trafo de MT e circuitos) | Ano | SEs | P10 | Mediana | P90 | Limiar bom | Limiar ruim | SEs no bom ou melhor | SEs no ruim ou pior |
 |---|---|---|---|---|---|---|---|---|---|
-| Consumidores atendidos pela SE | 2023 | 57 | 2.902,8 | 18.934,0 | 48.414,0 | 5.000 | 100.000 | 18% | 0% |
-| Energia anual da SE (GWh) | 2023 | 57 | 13,8 | 80,1 | 211,6 | 20 | 500 | 19% | 0% |
-| Eventos de SE por ano por 100 mil UCs (histórico de 3 anos) | 2023 | 57 | 0,0 | 5,6 | 30,4 | 0 | 20 | 28% | 18% |
-| Consumidores atendidos pela SE | 2025 | 60 | 2.806,8 | 19.224,0 | 49.322,3 | 5.000 | 100.000 | 18% | 0% |
-| Energia anual da SE (GWh) | 2025 | 60 | 5,9 | 51,6 | 176,0 | 20 | 500 | 30% | 0% |
-| Eventos de SE por ano por 100 mil UCs (histórico de 3 anos) | 2025 | 59 | 0,0 | 8,3 | 23,8 | 0 | 20 | 22% | 15% |
+| Consumidores atendidos pela SE | 2023 | 56 | 2.866,5 | 18.865,5 | 48.539,0 | 5.000 | 100.000 | 18% | 0% |
+| Energia anual da SE (GWh) | 2023 | 56 | 13,8 | 78,4 | 208,9 | 20 | 500 | 20% | 0% |
+| Eventos de SE por ano por 100 mil UCs (histórico de 3 anos) | 2023 | 56 | 0,0 | 5,6 | 30,6 | 0 | 20 | 29% | 18% |
+| Consumidores atendidos pela SE | 2025 | 59 | 2.796,6 | 19.120,0 | 49.762,6 | 5.000 | 100.000 | 19% | 0% |
+| Energia anual da SE (GWh) | 2025 | 59 | 5,8 | 51,7 | 178,3 | 20 | 500 | 31% | 0% |
+| Eventos de SE por ano por 100 mil UCs (histórico de 3 anos) | 2025 | 58 | 0,0 | 8,4 | 24,0 | 0 | 20 | 21% | 16% |
 
   O porte das SEs de MS é menor que o de MT (nenhuma SE chega a 100 mil UCs nem a 500 GWh), então a criticidade de MS
   fica mais baixa que a de MT no mesmo critério. **Decisão:** manter os limiares (a escala é a mesma), sem recalibrar para
   distribuir as notas. As comparações com MT são descritivas.
 * **Eventos de SE.** Mantida a definição de MT: 3 ou mais circuitos da mesma SE com início no mesmo minuto
-  (`eventos.min_alimentadores_evento_se: 3`). 48 das 62 SEs de 2023 têm 3 ou mais circuitos.
+  (`eventos.min_alimentadores_evento_se: 3`). 47 das 61 SEs de 2023 têm 3 ou mais circuitos.
   Com 2 circuitos a contagem passa de 300 para mais de 3 mil eventos, o que mistura coincidências com falha da SE.
 * **Janelas.** Iguais às de MT: decisão no snapshot de 2025, validação com o de 2023, resultados em 2024-2025 e as
   aberturas por disjuntor em 2026 (jan-jul, sem março), histórico de 3 anos no painel de cada snapshot, diagnósticos de
-  ampliação de 2021, 2022 e 2023. Todos os snapshots e anos de interrupção existem, o vínculo é de 99,1% ou mais nas
-  janelas de 2023 e 2024-2025, e as janelas não contradizem nenhum dado de MS.
+  ampliação de 2021, 2022 e 2023. Todos os snapshots e anos de interrupção existem, o vínculo a circuito é de 99,1% ou mais e o vínculo a uma SE, de
+  95,7% ou mais, nas janelas de 2023 e 2024-2025, e as janelas não contradizem nenhum dado de MS.
 
 ## 9. Parâmetros: o que fica igual a MT e o que vem de MS
 
@@ -494,3 +495,40 @@ python scripts/diagnostico_ems.py --config configs/premissas_ems.yaml --zips <pa
 
 A configuração também pode vir da variável `SEHEALTH_CONFIG=configs/premissas_ems.yaml`. Precisam estar clonados ao
 lado: `distribution-asset-risk` (dados de MS em `data/ems/interim`) e `automation-impact` (`reports/ems/valor.json`).
+
+## 13. Adendo: SEs com código em branco e ranking entre carregamentos confiáveis
+
+Estas duas mudanças foram decididas **depois da primeira execução do painel de MS** (07/11/2026), quando o ranking
+mostrou uma "SE" sem nome. As decisões anteriores (seções 2 a 12) não mudaram.
+
+* **O que apareceu.** `UNTRAT.SUB` e `CTMT.SUB` em branco em 2023, 2024 e 2025
+  ([`vinculo_alimentador_trafo.csv`](../reports/ems/diagnostico/vinculo_alimentador_trafo.csv)): 5, 7, 6 trafos e
+  8, 5, 5 circuitos (2023, 2024 e 2025, respectivamente); em 2021 e 2022 não há nenhum. Agrupados pelo código
+  em branco, eles formavam uma "SE" de 6 trafos e 5 circuitos (2025) de prefixos diferentes (`CRH`, `SOZ`, `RON`, `GOI`),
+  ou seja, de mais de uma SE de verdade, e fabricariam "eventos de SE" quando circuitos de SEs diferentes interrompem no
+  mesmo minuto. Um código em branco não identifica subestação nenhuma.
+* **Decisão 1.** `eletrico.excluir_se_sem_codigo: true` em MS (padrão de MT: falso): trafos e circuitos com `SUB` em branco
+  saem do painel e da ligação das interrupções. As interrupções desses circuitos ficam sem SE (de 2% a 4% das de MT de 2021
+  a 2025, pela coluna "Com SE" da seção 7); é uma perda registrada, não corrigida. Todas as tabelas das seções 3 a 8 já
+  estão calculadas com a exclusão.
+* **Antes e depois.** O critério da exclusão é o código em branco, não um resultado, e a exclusão não muda nenhuma decisão
+  das portas. A primeira execução está guardada em
+  [`primeira_execucao_com_se_em_branco.json`](../reports/ems/diagnostico/primeira_execucao_com_se_em_branco.json):
+
+|  | Primeira execução (com a SE em branco) | Final (sem ela) |
+|---|---|---|
+| SEs no índice de decisão (2025) | 60 | 59 |
+| SEs no índice de validação (2023) | 57 | 56 |
+| Porta (b), eventos de SE: SEs com evento / eventos | 44 / 320: passa | 44 / 320: passa |
+| Porta (b), disjuntor 2026: SEs com evento / eventos | 18 / 335: não passa | 18 / 335: não passa |
+| Porta (c), diagnóstico de 2021: sinalizadas / não sinalizadas | 21 / 8: não passa | 21 / 8: não passa |
+| Porta (c), diagnóstico de 2022: sinalizadas / não sinalizadas | 13 / 16: passa | 13 / 16: passa |
+| Porta (c), diagnóstico de 2023: sinalizadas / não sinalizadas | 16 / 13: passa | 16 / 12: passa |
+| Spearman do índice de 2023 com o CHI de eventos de SE de 2024-2025 | 0,26 | 0,25 |
+| Spearman do porte (UCs) com o mesmo resultado | 0,69 | 0,74 |
+
+* **Decisão 2.** O índice de MT dá nota de saúde sem o carregamento às SEs com carregamento incerto (o peso volta para os
+  outros indicadores). Em MS isso pesa mais (12 SEs de cerca de 60), e na primeira execução 3 das 3 primeiras SEs do
+  ranking eram dessas. O índice de MS ganha então a coluna `rank_risco_carregamento_confiavel`, com a posição só entre as
+  SEs cujo carregamento entra na nota (`qualidade.rank_entre_carregamento_confiavel`). **É uma leitura complementar: o
+  ranking principal e os pesos não mudam**, e as SEs de carregamento incerto continuam marcadas no CSV e nas tabelas.

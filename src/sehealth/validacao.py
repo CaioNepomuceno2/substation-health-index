@@ -56,8 +56,21 @@ def ampliacoes(base: pd.DataFrame, depois: pd.DataFrame, limiar: float = 0.10) -
     return j
 
 
-def taxa_ampliacao(base: pd.DataFrame, depois: pd.DataFrame, flag: str) -> pd.DataFrame:
+def taxa_ampliacao(base: pd.DataFrame, depois: pd.DataFrame, flag: str, min_trafos: int | None = None) -> pd.DataFrame:
+    """Taxa de SEs ampliadas entre sinalizadas e não sinalizadas; ``min_trafos`` restringe a amostra (padrão: todas)."""
     j = ampliacoes(base, depois).merge(base[["se", flag]], on="se")
+    if min_trafos:
+        j = j[j.n_trafos >= min_trafos]
     g = j.groupby(flag).ampliou.agg(["size", "sum", "mean"]).rename(
         columns={"size": "n_ses", "sum": "ampliadas", "mean": "taxa"})
     return g.reset_index().rename(columns={flag: "sinalizada"})
+
+
+def contagem_resultado(v: pd.DataFrame, coluna_eventos_ano: str | None = None, anos: int = 1,
+                       coluna_eventos: str | None = None) -> tuple[int, int]:
+    """(SEs com pelo menos 1 evento, total de eventos) do resultado entre as SEs de ``v`` (as do índice).
+
+    Eventos médios por ano (``coluna_eventos_ano``, multiplicados por ``anos``) ou contagem direta (``coluna_eventos``).
+    """
+    n = v[coluna_eventos] if coluna_eventos else v[coluna_eventos_ano] * anos
+    return int((n > 0).sum()), int(round(float(n.sum())))

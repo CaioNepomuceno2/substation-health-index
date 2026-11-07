@@ -38,12 +38,13 @@ def normalizar_potencia(pot: pd.Series) -> pd.Series:
 
 
 def trafos_se(cache: Path, ano: int, tensoes_mt: list[str], sobrecarga_emergencia: float = 1.0,
-              capacidade_emergencia: str = "estagios") -> pd.DataFrame:
+              capacidade_emergencia: str = "estagios", excluir_se_sem_codigo: bool = False) -> pd.DataFrame:
     """Transformadores de subestação (UNTRAT + EQTRAT) com idade e capacidade de emergência.
 
     ``capacidade_emergencia``: ``"estagios"`` (padrão de MT) usa o maior estágio de ventilação forçada cadastrado;
     ``"nominal"`` usa só a potência nominal (MS: os estágios do cadastro de 2025 são todos 1,25x e 1,5x, ver
     ``docs/decisoes_ems.md``). Nos dois casos o resultado é multiplicado por ``sobrecarga_emergencia``.
+    ``excluir_se_sem_codigo`` tira os trafos com ``SUB`` em branco (não identificam subestação nenhuma).
     """
     u = camada(cache, ano, "UNTRAT")
     e = camada(cache, ano, "EQTRAT")
@@ -76,11 +77,14 @@ def trafos_se(cache: Path, ano: int, tensoes_mt: list[str], sobrecarga_emergenci
     out["data_suspeita"] = ~valido
     out["idade_anos"] = ano - out.ano_instalacao
     out["ano_snapshot"] = ano
+    if excluir_se_sem_codigo:
+        out = out[out.se.str.strip() != ""].reset_index(drop=True)
     return out
 
 
 def alimentadores(cache: Path, interim: Path, ano: int, se_do_alimentador: str = "trafo",
-                  vinculo: str = "trafo", tensoes_mt: list[str] | None = None) -> pd.DataFrame:
+                  vinculo: str = "trafo", tensoes_mt: list[str] | None = None,
+                  excluir_se_sem_codigo: bool = False) -> pd.DataFrame:
     """Alimentadores do snapshot com a SE que os supre, energia mensal e consumidores.
 
     ``se_do_alimentador``: ``"trafo"`` (padrão de MT) usa a SE do transformador de origem
@@ -89,6 +93,8 @@ def alimentadores(cache: Path, interim: Path, ano: int, se_do_alimentador: str =
 
     ``vinculo``: ``"trafo"`` (padrão de MT) exige que a tensão do alimentador seja a do secundário do trafo apontado;
     ``"se"`` exige que a SE do alimentador tenha algum trafo com secundário de MT (``tensoes_mt``) nessa tensão.
+
+    ``excluir_se_sem_codigo`` tira os circuitos cuja SE tem código em branco (juntariam circuitos de SEs diferentes).
     """
     if se_do_alimentador not in ("trafo", "ctmt") or vinculo not in ("trafo", "se"):
         raise ValueError(f"opções inválidas: se_do_alimentador={se_do_alimentador!r}, vinculo={vinculo!r}")
@@ -126,6 +132,8 @@ def alimentadores(cache: Path, interim: Path, ano: int, se_do_alimentador: str =
         for c in ["n_uc", "rede_mt_km", "frac_rural"]:
             df[c] = pd.to_numeric(df[c], errors="coerce").astype(float)
     df["ano_snapshot"] = ano
+    if excluir_se_sem_codigo:
+        df = df[df.se.str.strip() != ""].reset_index(drop=True)
     return df
 
 

@@ -1,6 +1,6 @@
-ano,n_ctmt,uni_tr_at_vazio,uni_tr_at_fora_de_untrat,ctmt_sub_diferente_do_sub_do_trafo,prefixos_de_3_letras,prefixos_com_mais_de_uma_ctmt_sub,regra_mt_alimentadores_coerentes,regra_mt_pct_alimentadores,regra_mt_pct_energia,regra_mt_ses_no_universo,regra_mt_ses_cobertura_abaixo_do_minimo,regra_ms_alimentadores_coerentes,regra_ms_pct_alimentadores,regra_ms_pct_energia,regra_ms_ses_no_universo,regra_ms_ses_cobertura_abaixo_do_minimo
-2021,320,0,8,2,56,0,284,88.75,91.2872680269405,50,7,290,90.625,93.54474720635399,50,6
-2022,349,10,0,17,68,0,279,79.94269340974212,82.79188956211927,51,15,294,84.2406876790831,87.12668268830097,56,11
-2023,354,0,51,35,66,0,242,68.36158192090396,70.93339935206427,49,18,312,88.13559322033898,90.74414492691307,57,11
-2024,359,56,0,34,66,0,239,66.57381615598887,71.51337255993397,50,21,314,87.46518105849582,90.62038248287033,58,13
-2025,362,6,0,36,64,0,280,77.34806629834254,82.41399711333925,51,15,325,89.77900552486187,92.34494125210973,60,12
+ano,n_ctmt,ctmt_sub_em_branco,untrat_sub_em_branco,uni_tr_at_vazio,uni_tr_at_fora_de_untrat,ctmt_sub_diferente_do_sub_do_trafo,prefixos_de_3_letras,prefixos_com_mais_de_uma_ctmt_sub,regra_mt_alimentadores_coerentes,regra_mt_pct_alimentadores,regra_mt_pct_energia,regra_mt_ses_no_universo,regra_mt_ses_cobertura_abaixo_do_minimo,regra_ms_alimentadores_coerentes,regra_ms_pct_alimentadores,regra_ms_pct_energia,regra_ms_ses_no_universo,regra_ms_ses_cobertura_abaixo_do_minimo
+2021,320,0,0,0,8,2,56,0,284,88.75,91.2872680269405,50,7,290,90.625,93.54474720635399,50,6
+2022,349,0,0,10,0,17,68,0,279,79.94269340974212,82.79188956211927,51,15,294,84.2406876790831,87.12668268830097,56,11
+2023,354,8,5,0,51,35,66,0,242,69.94219653179191,74.24161780942958,48,17,304,87.86127167630057,90.31246688989263,56,11
+2024,359,5,7,56,0,34,66,0,239,67.51412429378531,72.29569697730967,49,20,309,87.28813559322035,90.51777364837373,57,13
+2025,362,5,6,6,0,36,64,0,280,78.43137254901961,83.1806209752726,50,14,320,89.6358543417367,92.27373307259911,59,12
