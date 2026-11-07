@@ -29,7 +29,11 @@ ESTILO = {
 }
 
 
-def curto(nome):
+def curto_mt(nome):
+    return str(nome).replace("SE ", "").replace(" 138 KV", "").replace(" 69 KV", "").title()
+
+
+def curto_novo(nome):
     n = str(nome)
     n = n[3:] if n.startswith("SE ") else n   # só o prefixo: "JOSE ABRAO" não pode virar "JOABRAO"
     return n.replace(" 138 KV", "").replace(" 69 KV", "").title()
@@ -66,6 +70,8 @@ def main(argv=None):
     R = config.reports(cfg)
     FIG = config.figuras(cfg)
     FIG.mkdir(parents=True, exist_ok=True)
+    mt = config.eh_mt(cfg)
+    curto = curto_mt if mt else curto_novo     # MT: as figuras publicadas não mudam
 
     def salvar(fig, nome):
         fig.savefig(FIG / nome, dpi=170, bbox_inches="tight")
@@ -85,9 +91,14 @@ def main(argv=None):
             ax.fill(xy[:, 0], xy[:, 1], color="#f1f0ea", ec=AXIS, lw=0.8, zorder=0)
     sc = ax.scatter(idx.lon, idx.lat, s=np.sqrt(idx.n_uc.clip(lower=1)) * 0.9, c=idx.risco, cmap="YlOrRd",
                     vmin=0, vmax=max(50, idx.risco.max()), ec=INK2, lw=0.5, zorder=2)
-    anotar_sem_sobrepor(fig, ax, [(f"{int(r.rank_risco)}. {curto(r.nome)}", (r.lon, r.lat))
-                                  for _, r in top.dropna(subset=["lon", "lat"]).iterrows()], fontsize=8, color=INK,
-                        zorder=3)
+    if mt:
+        for _, r in top.iterrows():
+            ax.annotate(f"{int(r.rank_risco)}. {curto(r.nome)}", (r.lon, r.lat), xytext=(5, 4),
+                        textcoords="offset points", fontsize=8, color=INK, zorder=3)
+    else:
+        anotar_sem_sobrepor(fig, ax, [(f"{int(r.rank_risco)}. {curto(r.nome)}", (r.lon, r.lat))
+                                      for _, r in top.dropna(subset=["lon", "lat"]).iterrows()], fontsize=8, color=INK,
+                            zorder=3)
     cb = fig.colorbar(sc, ax=ax, shrink=0.6, pad=0.02)
     cb.set_label("Risco (saúde × criticidade / 100)")
     ax.set_title(f"Risco das subestações da {config.nome_curto(cfg)} ({ano})\ntamanho = consumidores atendidos")
@@ -182,7 +193,7 @@ def main(argv=None):
             axs[k].axhline(0, color=AXIS)
             axs[k].set_ylabel("Correlação de Spearman")
             axs[k].set_title(f"Índice de {t0} contra o que aconteceu depois")
-            axs[k].set_ylim(-0.1, max(0.65, float(pv[[c for c, _, _ in series]].max().max()) + 0.12))
+            axs[k].set_ylim(-0.1, 0.65 if mt else max(0.65, float(pv[[c for c, _, _ in series]].max().max()) + 0.12))
             axs[k].legend(fontsize=8, loc="upper right")
         salvar(fig, "05_validacao.png")
     print(sorted(p.name for p in FIG.glob("*.png")))

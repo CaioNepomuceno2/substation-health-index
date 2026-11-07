@@ -532,3 +532,22 @@ mostrou uma "SE" sem nome. As decisões anteriores (seções 2 a 12) não mudara
   ranking eram dessas. O índice de MS ganha então a coluna `rank_risco_carregamento_confiavel`, com a posição só entre as
   SEs cujo carregamento entra na nota (`qualidade.rank_entre_carregamento_confiavel`). **É uma leitura complementar: o
   ranking principal e os pesos não mudam**, e as SEs de carregamento incerto continuam marcadas no CSV e nas tabelas.
+
+## 14. Guarda de MT
+
+Nada de MT foi regenerado nem alterado: não há cache nem resultados de MT para reproduzir neste ambiente, e o pedido era não
+mexer neles. O que garante que MT segue igual:
+
+* **Caminhos e parâmetros.** `tests/test_config.py` fixa, por extenso, o que a configuração padrão resolve hoje (cache,
+  pasta dos intermediários, `interrupcoes_emt.parquet`, `reports/`, `data/processed`, malha do IBGE de MT, R$ por CHI de
+  MT, tensões, pesos, anos, fatores de carga) e as listas de colunas e de preditores que os scripts publicam.
+* **Saídas, nos mesmos dados.** Rodei os scripts 01 a 04 do commit-base (`main`) e os deste ramo, **com a configuração
+  padrão**, sobre o mesmo cache sintético no layout de MT: os 8 arquivos de `data/processed` e os 12 de `reports/` (7 CSV e
+  JSON e 5 figuras) saíram **idênticos byte a byte**. É uma conferência em dados sintéticos, não nos dados reais de MT.
+* **Leitor de camadas do cache.** A função nova de gravação de camada (`cache.gravar_camada`) dá o mesmo DataFrame que a
+  função antiga do `00_cache_bdgd.py` (`tests/test_cache.py`, sobre um File Geodatabase sintético) e o mesmo Parquet, byte a
+  byte, nas camadas de 2025 de MS. O caminho de download de MT do script não foi executado (exige baixar cerca de 8 GB).
+* **Escopo do diff.** `git diff main -- reports app` só lista arquivos de `reports/ems/`: nenhum arquivo de `reports/` fora
+  dessa pasta e nenhum de `app/data/` foi tocado.
+* **Proteções.** Outra distribuidora é recusada se a configuração apontar para `reports/` ou `data/processed` de MT, se não
+  trouxer o `valor.json` com `origem_efeito`, ou se o cache for de outra distribuidora (coluna `DIST`).
