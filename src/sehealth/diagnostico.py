@@ -12,6 +12,7 @@ from pathlib import Path
 import duckdb
 import numpy as np
 import pandas as pd
+from scipy.stats import spearmanr
 
 from sehealth import cache as K
 from sehealth import carregamento as C
@@ -500,3 +501,59 @@ def eventos_disponiveis(
         }
     )
     return pd.DataFrame(linhas)
+
+
+def energia_circuitos(
+    cache: Path, interim: Path, anos: list[int], opcoes_alim: dict
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Qualidade da energia mensal dos circuitos (``CTMT.ENE_xx``), que sustenta o carregamento estimado das SEs.
+
+    Devolve (por snapshot, entre snapshots seguidos). A energia é líquida da geração distribuída; o nível pode mudar de
+    um cadastro para o outro, então se mede também se a ordem das SEs se mantém (Spearman da energia média por SE).
+    """
+    por_ano, circ, se = [], {}, {}
+    for ano in anos:
+        c = D.camada(cache, ano, "CTMT")
+        ene = c[[f"ene_{m}".upper() for m in D.MESES]].apply(pd.to_numeric, errors="coerce")
+        soma = ene.sum(axis=1)
+        n_uc = pd.read_parquet(Path(interim) / f"bdgd_feeders_{ano}.parquet", columns=["n_uc"]).n_uc.sum()
+        circ[ano] = pd.Series(soma.values, index=c.NOME.astype(str).str.strip().str.zfill(6))
+        alim = D.alimentadores(cache, interim, ano, **opcoes_alim)
+        se[ano] = C.carga_mensal_se(alim, ano).mean(axis=1).abs()
+        por_ano.append(
+            {
+                "ano": ano,
+                "circuitos": len(c),
+                "pct_circuitos_com_energia_positiva": float((soma > 0).mean() * 100),
+                "meses_negativos": int((ene < 0).sum().sum()),
+                "circuitos_com_mes_negativo": int((ene < 0).any(axis=1).sum()),
+                "meses_zero": int((ene == 0).sum().sum()),
+                "energia_gwh": float(ene.sum().sum() / 1e6),
+                "uc": float(n_uc),
+                "kwh_por_uc": float(ene.sum().sum() / n_uc),
+            }
+        )
+    trans = []
+    for a, b in zip(anos[:-1], anos[1:], strict=True):
+        x, y = circ[a], circ[b]
+        com = [k for k in x.index.intersection(y.index) if x[k] > 0]
+        r = (y[com] / x[com]).replace([np.inf, -np.inf], np.nan).dropna()
+        xs, ys = se[a], se[b]
+        cs = [k for k in xs.index.intersection(ys.index) if xs[k] > 0 and ys[k] > 0]
+        rs = ys[cs] / xs[cs]
+        trans.append(
+            {
+                "de": a,
+                "para": b,
+                "circuitos_comuns": len(com),
+                "circuito_razao_mediana": float(r.median()),
+                "circuito_razao_p10": float(r.quantile(0.1)),
+                "circuito_razao_p90": float(r.quantile(0.9)),
+                "pct_circuitos_com_queda_acima_de_10": float((r < 0.9).mean() * 100),
+                "ses_comuns": len(cs),
+                "se_razao_mediana": float(rs.median()),
+                "pct_ses_com_queda_acima_de_20": float((rs < 0.8).mean() * 100),
+                "se_spearman_energia": float(spearmanr(xs[cs], ys[cs])[0]),
+            }
+        )
+    return pd.DataFrame(por_ano), pd.DataFrame(trans)

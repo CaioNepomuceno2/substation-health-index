@@ -32,6 +32,7 @@ segue valendo para MT).
 | 14 | Validação com eventos | Das 57 SEs do universo de 2023, 44 têm evento de SE em 2024-2025 e 18 têm abertura por disjuntor em 2026 | **Porta (b) por resultado**, avaliada pelo script sobre o índice real |
 | 15 | Escalas dos indicadores | As entradas de consumidores e de energia ficam abaixo do limiar "ruim" em todas as SEs | Limiares de MT mantidos (escala absoluta) |
 | 16 | R$ por CHI | `valor.json` de MS do `automation-impact`: R$ 5,56 (social) e R$ 2,15 (compensação), `origem_efeito = "transportado de MT"` | Lidos desse arquivo; o rótulo é repetido em toda saída de R$; os R$ 5,94 e R$ 1,93 de MT nunca entram |
+| 17 | Energia mensal dos circuitos | A ordem das SEs por energia se mantém entre snapshots (Spearman de 0,95 a 0,97), mas o nível oscila: a energia total cai de 6,3 TWh (2023) para 4,9 TWh (2025) com mais UCs, e 51% dos circuitos caem mais de 10% em 2025 | Carregamento lido como ordem entre SEs dentro de cada snapshot; o crescimento de energia não é publicado em MS; sem comparar níveis de carregamento entre snapshots |
 
 ## 1. Fonte, cache e linhas repetidas
 
@@ -138,12 +139,14 @@ existem também no snapshot de 2025, onde os eventos são medidos; seção 9):
 1. pelo menos **30 SEs** tiveram pelo menos 1 evento do resultado na janela de validação, e
 2. houve pelo menos **200 eventos** do resultado no total, nessas SEs.
 
-"Evento de MT" é a interrupção de média tensão, interna e não programada (o filtro de `eventos.eventos_mt`). Os dois
-resultados da validação de MT são avaliados separadamente:
+O limiar conta, entre as SEs do índice, as **ocorrências de cada resultado de validação** (não as interrupções em geral).
+A matéria-prima dos dois resultados é a interrupção de média tensão, interna e não programada (o filtro de
+`eventos.eventos_mt`). Os resultados da validação de MT são avaliados separadamente:
 
-* **(A) Eventos de SE em 2024-2025:** interrupções que começam no mesmo minuto em 3 ou mais circuitos da mesma SE;
-* **(B) Aberturas por disjuntor de janeiro a julho de 2026:** interrupções com o elemento `DISJUNTOR`, ligadas à SE
-  pela `subestacao` do layout novo. Março de 2026 não tem registro em MS (seção 7).
+* **(A) Eventos de SE em 2024-2025:** cada grupo de interrupções que começam no mesmo minuto em 3 ou mais circuitos da
+  mesma SE conta como 1 evento;
+* **(B) Aberturas por disjuntor de janeiro a julho de 2026:** cada interrupção com o elemento `DISJUNTOR`, ligada à SE
+  pela `subestacao` do layout novo, conta como 1 evento. Março de 2026 não tem registro em MS (seção 7).
 
 Se um resultado não passa, **nenhuma correlação, captura do topo ou comparação com baseline desse resultado é
 publicada**: sai só a contagem e o motivo, em `reports/ems/validacao_portas.json`, e o README diz por quê. O índice sai
@@ -171,8 +174,8 @@ de 2021 é o mais frágil dos três.
 ### 2.5 Análises secundárias declaradas de antemão
 
 Sensibilidade ao fator de carga (0,62 e 0,82, como em MT); capacidade de emergência pelos estágios cadastrados, em
-lugar da nominal; vínculo pela regra de MT, em lugar da de MS (o que muda no ranking). Nenhuma delas troca o resultado
-principal.
+lugar da nominal; vínculo pela regra de MT, em lugar da de MS (o que muda no ranking). São publicadas ao lado do
+resultado principal e nunca o substituem: a configuração principal é a deste documento.
 
 ## 3. Subestações, trafos e tensões
 
@@ -272,7 +275,7 @@ secundário. Em MS esse ponteiro é pior que em MT
   (contra 67% a 89% pela regra de MT) e há 6 a 13 SEs com cobertura abaixo de 0,8 por snapshot.
   A regra de MT fica como sensibilidade.
 
-## 5. Capacidade de emergência, perdas e idade dos trafos
+## 5. Capacidade, perdas, idade e energia dos circuitos
 
 Em MT, a capacidade de cada trafo no N-1 é o maior estágio de ventilação forçada cadastrado (`POT_F01`, `POT_F02`)
 vezes `sobrecarga_emergencia` (1,0). Em MS esses estágios não são confiáveis
@@ -299,6 +302,48 @@ vezes `sobrecarga_emergencia` (1,0). Em MS esses estágios não são confiáveis
 * **Idade:** reprova (seção 2.2). As datas de conexão dos trafos de SE são plausíveis em cada cadastro (100% entre 1950 e o ano
   do cadastro, com 57 a 72 datas distintas), e mesmo assim a data troca entre cadastros. Não há como saber qual cadastro
   está certo.
+
+### 5.1 Energia mensal dos circuitos (`CTMT.ENE_xx`)
+
+O carregamento estimado de cada SE (utilização e déficit N-1, 75% do peso da saúde) vem da energia mensal dos
+circuitos. A energia de cada trafo (`UNTRAT.ENES_xx`) é o mesmo número: a soma por SE é idêntica à dos circuitos, então
+não é uma checagem independente. Por snapshot
+([`energia_circuitos.csv`](../reports/ems/diagnostico/energia_circuitos.csv)):
+
+|  | 2021 | 2022 | 2023 | 2024 | 2025 |
+|---|---|---|---|---|---|
+| Energia dos circuitos (GWh) | 5.567 | 5.581 | 6.324 | 5.739 | 4.926 |
+| Consumidores (UCs) | 1.250.117 | 1.339.896 | 1.386.394 | 1.458.167 | 1.404.395 |
+| kWh por UC | 4.453 | 4.166 | 4.561 | 3.936 | 3.508 |
+| Circuitos com energia anual positiva | 91,6% | 98,3% | 96,3% | 96,1% | 95,3% |
+| Meses com energia negativa (circuitos) | 85 (8) | 0 (0) | 0 (0) | 0 (0) | 85 (20) |
+| Meses com energia zero | 246 | 226 | 203 | 246 | 186 |
+
+E entre snapshots seguidos ([`energia_estabilidade.csv`](../reports/ems/diagnostico/energia_estabilidade.csv)):
+
+| Snapshots | Razão mediana por circuito (P10 a P90) | Circuitos com queda > 10% | Razão mediana por SE | SEs com queda > 20% | Spearman da energia por SE |
+|---|---|---|---|---|---|
+| 2021 → 2022 | 0,92 (0,69 a 1,18) | 44% | 0,90 | 18% | 0,97 |
+| 2022 → 2023 | 1,06 (0,78 a 1,78) | 17% | 1,08 | 9% | 0,95 |
+| 2023 → 2024 | 1,01 (0,59 a 1,24) | 24% | 0,98 | 16% | 0,97 |
+| 2024 → 2025 | 0,89 (0,38 a 1,28) | 51% | 0,89 | 32% | 0,97 |
+
+Energia é fluxo medido, não atributo do equipamento, então o critério de estabilidade de 2.1 não se aplica ao nível.
+Valem dois critérios próprios, também fixados antes dos resultados: **(i)** pelo menos 90% dos circuitos com energia
+positiva; **(ii)** a ordem das SEs por energia se mantém entre snapshots seguidos (Spearman de pelo menos 0,9).
+
+* **Passa:** de 91,6% a 98,3% dos circuitos têm energia positiva, e o Spearman por SE fica entre 0,95 e 0,97.
+* **Não passa, e fica registrado:** o **nível** e o **crescimento**. A energia total cai de 6,3 TWh (2023) para 4,9 TWh
+  (2025), com 1,386 milhão para 1,404 milhão de UCs (de 4.561 para 3.508 kWh por UC). Em 2025, 51% dos circuitos caem mais
+  de 10% e 32% das SEs caem mais de 20%. Aparecem 85 meses de energia negativa em 2021 (8 circuitos) e de novo em 2025
+  (20 circuitos). A energia é líquida da geração distribuída, e o arquivo não permite separar crescimento da GD de mudança
+  de definição entre cadastros.
+* **Decisões:** (1) o carregamento é lido como **ordem das SEs dentro de cada snapshot** e como fração da capacidade, não
+  como nível comparável entre snapshots; o pico continua sendo uma estimativa por fator de carga, com a sensibilidade de
+  MT. (2) `crescimento_aa` (peso zero em MT) **não é publicado** em MS: mediria sobretudo essa instabilidade. (3) As
+  contagens de SEs sem folga N-1 de anos diferentes (2021, 2022, 2023, 2025) não são lidas como tendência. (4) A
+  comparação com as ampliações usa o carregamento de cada ano de diagnóstico; as contagens de sinalizadas variam de um
+  ano para o outro em parte por essa instabilidade e não são comparáveis entre si.
 
 ## 6. Transferência pelas chaves normalmente abertas
 

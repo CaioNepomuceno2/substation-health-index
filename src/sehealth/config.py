@@ -36,7 +36,7 @@ ANOS_PAINEIS_MT = [2021, 2022, 2023, 2024, 2025]
 ANOS_INTERRUPCOES_MT = list(range(2018, 2027))
 FATORES_CARGA_SENSIBILIDADE_MT = [0.62, 0.82]
 VALIDACAO_MT = {"anos_diagnostico_ampliacao": [2021, 2022, 2023], "ano_disjuntor": 2026,
-                "elemento_disjuntor": "DISJUNTOR"}
+                "elemento_disjuntor": "DISJUNTOR", "so_ses_presentes_no_resultado": False, "portas_ampliacao": None}
 
 
 def caminho_config(path: str | Path | None = None) -> Path:
