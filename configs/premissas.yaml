@@ -5,12 +5,21 @@
 
 dados:
   distribuidora: EMT
+  cod_aneel: 405             # confere a coluna DIST da BDGD (impede ler o cache de outra distribuidora)
+  nome: Energisa Mato Grosso
+  nome_curto: Energisa MT
   # caminhos relativos à raiz do repositório
   cache_bdgd: data/bdgd-cache                  # gerado por scripts/00_cache_bdgd.py
   interim_gridrisk: ../distribution-asset-risk/data/interim   # interrupções harmonizadas + crosswalks (projeto irmão)
   ano_decisao: 2025          # snapshot usado para a lista de prioridades
   ano_validacao: 2023        # índice montado só com dados até este ano
   anos_resultado: [2024, 2025]
+
+# Saídas (relativas à raiz do repositório). Outra distribuidora grava em subpastas 'ems', nunca aqui.
+paths:
+  reports: reports
+  processed: data/processed
+  malha_ibge: ref/mt_ibge.geojson
 
 eletrico:
   fator_potencia: 0.92       # converte MW médio em MVA (premissa usual de planejamento)

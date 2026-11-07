@@ -1,0 +1,54 @@
+{
+ "descricao": "Primeira execucao do pipeline de MS (07/11/2026), ANTES de excluir as SEs com codigo em branco (docs/decisoes_ems.md, secao 13). Guardada so para mostrar que a exclusao nao muda as decisoes das portas.",
+ "indice_2025": {
+  "n_ses": 60,
+  "n_uc": 1403001.0,
+  "ses_um_trafo": 27,
+  "ses_carregamento_incerto": 12,
+  "ses_sem_folga_n1_pontuadas": 25,
+  "ses_sem_folga_n1_com_2mais_trafos": 9,
+  "eventos_se_ano_total": 170.33333333333331,
+  "se_sem_nome": 1,
+  "top3": [
+   "AMAMBAI",
+   "BATAGUASSU",
+   "CAMAPUA"
+  ]
+ },
+ "porta_b": {
+  "A_eventos_de_se": {
+   "passou": true,
+   "ses_com_evento": 44,
+   "eventos": 320
+  },
+  "B_disjuntor": {
+   "passou": false,
+   "ses_com_evento": 18,
+   "eventos": 335
+  }
+ },
+ "porta_c": {
+  "2021": {
+   "passou": false,
+   "sinalizadas_2mais_trafos": 21,
+   "nao_sinalizadas_2mais_trafos": 8,
+   "pct_pareadas": 100.0
+  },
+  "2022": {
+   "passou": true,
+   "sinalizadas_2mais_trafos": 13,
+   "nao_sinalizadas_2mais_trafos": 16,
+   "pct_pareadas": 100.0
+  },
+  "2023": {
+   "passou": true,
+   "sinalizadas_2mais_trafos": 16,
+   "nao_sinalizadas_2mais_trafos": 13,
+   "pct_pareadas": 97.82608695652173
+  }
+ },
+ "ses_no_indice_2023": 57,
+ "spearman_risco_chi_eventos_se": 0.2609,
+ "spearman_porte_chi_eventos_se": 0.6944,
+ "spearman_historico_chi_eventos_se": 0.5438
+}

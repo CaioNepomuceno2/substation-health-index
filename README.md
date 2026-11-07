@@ -263,6 +263,55 @@ docs/              metodologia e decisões de dados
 * **SE única no município** usa o município de localização da SE, não o das UCs atendidas.
 * **Premissas de valor ilustrativas:** taxa de falha, horas de reposição e custo por MVA.
 
+<!-- energisa-ms:inicio -->
+## Energisa MS
+
+O mesmo método roda para a **Energisa Mato Grosso do Sul (EMS)**, com dados abertos da ANEEL e do IBGE, em arquivos próprios:
+configuração [`configs/premissas_ems.yaml`](configs/premissas_ems.yaml), resultados em [`reports/ems/`](reports/ems/),
+decisões de dados e portas de qualidade (escritas **antes** dos resultados) em [`docs/decisoes_ems.md`](docs/decisoes_ems.md)
+e a análise completa em [`docs/resultados_ems.md`](docs/resultados_ems.md). Os resultados e os caminhos de MT acima não mudaram.
+
+Snapshot de 31/12/2025: **59 SEs** que atendem **1,38 milhão** de UCs. Comparações com MT, só descritivas.
+
+|  | Energisa MS | Energisa MT (publicado) |
+|---|---|---|
+| SEs com **um único trafo de MT** (sem capacidade firme na própria SE) | **27 de 59**, com **335 mil UCs** (24%) | 36 de 78, com 363 mil UCs (18%) |
+| UCs em alimentadores **sem chave NA para alimentador de outra SE** | **0,65 milhão** (47%) | 1,13 milhão (56%) |
+| SEs com 2 ou mais trafos cujo pico estimado **não cabe se o maior trafo sair** | **9** pela potência nominal; 3 pelos estágios de ventilação cadastrados (a base de MT) | 6 (estágios de ventilação) |
+| SEs com pico estimado acima de 80% da potência instalada | 0 (a maior utilização estimada é 70%) | 4 (nenhuma acima de 100%) |
+| SEs sinalizadas sem folga N-1 com 2+ trafos que **a distribuidora ampliou** até 2025 | **8% e 6%**, contra 12% e 8% das demais (diagnósticos de 2022 e 2023; o de 2021 não passa a porta (c)) | 35% a 42%, contra 12% a 14% das demais |
+| Índice de 2023 contra o CHI de eventos de SE em 2024-2025 | Spearman **0,25** (p = 0,07); o porte dá 0,74 e o histórico, 0,58 | Spearman 0,37 (p = 0,001); o porte dá 0,45 e o histórico, 0,43 |
+| Eventos de SE (interrupção simultânea em 3+ alimentadores) | 170 por ano, **3,4% do CHI** das falhas de MT | 187 por ano, 2,6% do CHI |
+
+![mapa de MS](reports/ems/figures/01_mapa_risco.png)
+
+* **A validação de MS não confirma o que MT mostra.** As SEs sinalizadas sem folga N-1 não foram mais ampliadas que as
+  demais (amostras de 12 a 16 SEs), e o índice de 2023 fica abaixo do porte e do histórico como preditor dos eventos de SE.
+  A validação com as aberturas por disjuntor de 2026 **não é publicada**: só 18 SEs do índice têm abertura (mínimo 30,
+  porta pré-registrada). O mesmo vale para o diagnóstico de 2021 das ampliações.
+* **N-1 pela potência nominal.** Os estágios de ventilação cadastrados em 2025 são 1,25x e 1,5x em todos os trafos; a
+  contagem de MS não é comparável com a de MT (a tabela mostra as duas bases).
+* **Sem idade do trafo na nota de saúde:** o cadastro de MS troca a data de conexão do mesmo trafo entre anos.
+* **12 de 59 SEs com carregamento incerto**, e várias delas no topo do ranking; o CSV traz a posição só entre as confiáveis.
+* **R$ com rótulo.** Todo R$ de MS repete `origem_efeito = "transportado de MT"` (o efeito do religador de MS não foi medido) e
+  usa o R$ por CHI de MS (R$ 5,56 social e R$ 2,15 de compensação), nunca os de MT.
+* **Limitações:** as de MT acima (carregamento estimado por fator de carga, energia líquida da GD, condição física ausente,
+  eventos de SE como rastro) valem também para MS. Em MS, o nível da energia dos circuitos oscila entre cadastros, 2% a 4% das
+  interrupções ficam sem SE (código em branco), março de 2026 não tem registro e são poucas SEs. Detalhes em
+  [`docs/resultados_ems.md`](docs/resultados_ems.md), seção 7.
+
+**Rodar para MS** (precisam estar clonados ao lado `distribution-asset-risk` e `automation-impact`):
+
+```bash
+python scripts/00_cache_bdgd.py --config configs/premissas_ems.yaml --zips <pasta dos zips da BDGD de MS>
+python scripts/01_paineis.py --config configs/premissas_ems.yaml     # idem 02, 03 e 04; sem --config roda MT
+```
+
+A variável `SEHEALTH_CONFIG=configs/premissas_ems.yaml` faz o mesmo que `--config`.
+
+> Projeto independente, sem vínculo com a Energisa ou com a ANEEL. Só dados abertos (ANEEL e IBGE).
+<!-- energisa-ms:fim -->
+
 ---
 Autor: **Caio Nepomuceno**. Dados públicos da ANEEL (BDGD e interrupções). Projeto independente, sem vínculo com a
 Energisa ou com a ANEEL.

@@ -1,0 +1,74 @@
+{
+  "ses_no_indice": 56,
+  "ses_removidas_por_ausencia_no_snapshot_do_resultado": [],
+  "validacao_com_eventos": {
+    "A_eventos_de_se": {
+      "avaliada": true,
+      "passou": true,
+      "ses_com_evento": 44,
+      "eventos": 320,
+      "min_ses_com_evento": 30,
+      "min_eventos": 200,
+      "motivo": ""
+    },
+    "B_disjuntor": {
+      "avaliada": true,
+      "passou": false,
+      "ses_com_evento": 18,
+      "eventos": 335,
+      "min_ses_com_evento": 30,
+      "min_eventos": 200,
+      "motivo": "só 18 SEs do índice com pelo menos 1 evento (mínimo 30)"
+    }
+  },
+  "ampliacoes_reais": {
+    "2021": {
+      "passou": false,
+      "sinalizadas_2mais_trafos": 21,
+      "nao_sinalizadas_2mais_trafos": 8,
+      "ses_no_diagnostico": 44,
+      "ses_pareadas": 44,
+      "pct_pareadas": 100.0,
+      "minimos": {
+        "min_sinalizadas": 10,
+        "min_nao_sinalizadas": 10,
+        "min_pct_pareadas": 80
+      },
+      "motivo": "só 8 SEs não sinalizadas com 2+ trafos (mínimo 10)"
+    },
+    "2022": {
+      "passou": true,
+      "sinalizadas_2mais_trafos": 13,
+      "nao_sinalizadas_2mais_trafos": 16,
+      "ses_no_diagnostico": 45,
+      "ses_pareadas": 45,
+      "pct_pareadas": 100.0,
+      "minimos": {
+        "min_sinalizadas": 10,
+        "min_nao_sinalizadas": 10,
+        "min_pct_pareadas": 80
+      },
+      "motivo": "",
+      "criterios_sem_amostra_minima": [
+        "utilizacao_acima_80"
+      ]
+    },
+    "2023": {
+      "passou": true,
+      "sinalizadas_2mais_trafos": 16,
+      "nao_sinalizadas_2mais_trafos": 12,
+      "ses_no_diagnostico": 45,
+      "ses_pareadas": 45,
+      "pct_pareadas": 100.0,
+      "minimos": {
+        "min_sinalizadas": 10,
+        "min_nao_sinalizadas": 10,
+        "min_pct_pareadas": 80
+      },
+      "motivo": "",
+      "criterios_sem_amostra_minima": [
+        "utilizacao_acima_80"
+      ]
+    }
+  }
+}

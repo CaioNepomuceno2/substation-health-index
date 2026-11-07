@@ -1,0 +1,9 @@
+sinalizada,n_ses,ampliadas,taxa,ano_base,criterio
+False,16,2,0.125,2022,sem_folga_n1
+True,29,2,0.06896551724137931,2022,sem_folga_n1
+False,16,2,0.125,2022,sem_folga_n1_multi
+True,13,1,0.07692307692307693,2022,sem_folga_n1_multi
+False,12,1,0.08333333333333333,2023,sem_folga_n1
+True,33,2,0.06060606060606061,2023,sem_folga_n1
+False,12,1,0.08333333333333333,2023,sem_folga_n1_multi
+True,16,1,0.0625,2023,sem_folga_n1_multi
