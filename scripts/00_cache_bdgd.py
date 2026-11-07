@@ -1,12 +1,16 @@
-"""Cache da BDGD (Energisa MT, 2018-2025): baixa cada snapshot da ANEEL e grava as camadas usadas.
+"""Cache da BDGD: grava as camadas usadas em Parquet (<ano>/<CAMADA>.parquet, ponto/polígono como lon/lat, EPSG:4326).
 
-Reaproveita o leitor da BDGD do projeto irmão distribution-asset-risk
-(https://github.com/CaioNepomuceno2/distribution-asset-risk, pacote ``gridrisk``),
-que precisa estar clonado ao lado deste repositório (caminho em GRIDRISK abaixo).
+Duas origens, escolhidas pela configuração (``--config``; padrão = Energisa MT):
 
-Para cada snapshot: baixa o GDB uma vez, grava as camadas necessárias em Parquet
-(<ano>/<CAMADA>.parquet, geometria pontual como lon/lat em EPSG:4326) e apaga o GDB.
-Camadas de topologia (SSDMT, UNTRMT, UCBT/UCMT agregados) só para os anos em TOPO.
+* **MT (padrão):** baixa cada snapshot da ANEEL, uma vez, grava as camadas e apaga o GDB. Reaproveita o leitor da BDGD
+  do projeto irmão distribution-asset-risk (https://github.com/CaioNepomuceno2/distribution-asset-risk, pacote
+  ``gridrisk``), que precisa estar clonado ao lado deste repositório. Camadas de topologia (SSDMT, UNTRMT, UCBT/UCMT
+  agregados) só para os anos em TOPO.
+* **Zips locais (MS):** com ``--zips <pasta>``, ``SEHEALTH_BDGD_ZIPS`` ou ``bdgd.zips_locais``, lê os zips já baixados
+  (``bdgd_<ano>_<item>.gdb.zip``) no próprio zip, pelo GDAL (``/vsizip/``), só nas camadas de ``bdgd.camadas``. Nada é
+  baixado, extraído nem alterado na pasta de zips. O inventário é somado ao que já existe, então o script é retomável.
+
+Camadas, anos e colunas de topologia vêm de ``bdgd.*`` da configuração; sem a chave, valem os padrões de MT abaixo.
 No fim grava DONE com o inventário.
 """
 import json
@@ -18,13 +22,13 @@ import pandas as pd
 import pyogrio
 import yaml
 
-GRIDRISK = Path(__file__).resolve().parents[2] / "distribution-asset-risk"
-sys.path.insert(0, str(GRIDRISK / "src"))
-from gridrisk.ingest import bdgd  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
-OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parents[1] / "data" / "bdgd-cache"
-RAW = OUT / "_raw"
-SNAPS = yaml.safe_load(open(GRIDRISK / "configs" / "emt.yaml"))["bdgd"]["snapshots"]
+from sehealth import cache as K  # noqa: E402
+from sehealth import config  # noqa: E402
+
+# padrões de MT
 ATIVOS = ["UNSEMT", "EQSE", "UNTRAT", "EQTRAT", "SUB", "BAY", "CTMT", "UNREMT", "EQRE", "BAR", "CONJ"]
 COM_GEOM = {"UNSEMT", "SUB", "UNTRAT", "UNREMT"}
 TOPO = {2024, 2025}
@@ -33,32 +37,12 @@ TOPO_CAMADAS = {"SSDMT": ["COD_ID", "PAC_1", "PAC_2", "CTMT", "COMP", "FAS_CON",
 INVENT = {}
 
 
-def _grava(gdb: Path, camada: str, ano: int, colunas=None, geom=False):
-    nomes = {n for n, _ in pyogrio.list_layers(gdb)}
-    real = next((c for c in bdgd.LAYER_ALIASES.get(camada, [camada]) if c in nomes), None)
-    if real is None:
-        INVENT.setdefault(ano, {})[camada] = "ausente"
-        return
-    campos = list(pyogrio.read_info(gdb, layer=real)["fields"])
-    cols = [c for c in (colunas or campos) if c in campos]
-    df = pyogrio.read_dataframe(gdb, layer=real, columns=cols, read_geometry=geom, use_arrow=True)
-    if geom and "geometry" in df:
-        g = df.geometry.to_crs(4326)
-        if g.geom_type.isin(["Point"]).all():
-            df["lon"], df["lat"] = g.x, g.y
-        else:
-            c = g.representative_point()
-            df["lon"], df["lat"] = c.x, c.y
-        df = pd.DataFrame(df.drop(columns="geometry"))
-    for c in df.columns:
-        if df[c].dtype == object:
-            df[c] = df[c].astype("string")
-    (OUT / str(ano)).mkdir(parents=True, exist_ok=True)
-    df.to_parquet(OUT / str(ano) / f"{camada}.parquet", index=False)
-    INVENT.setdefault(ano, {})[camada] = len(df)
+def _grava(fonte, camada: str, ano: int, out: Path, colunas=None, geom=False, aliases=None):
+    n = K.gravar_camada(fonte, camada, out / str(ano), colunas=colunas, geom=geom, aliases=aliases)
+    INVENT.setdefault(ano, {})[camada] = "ausente" if n is None else n
 
 
-def _ucs(gdb: Path, ano: int):
+def _ucs(gdb: Path, ano: int, out: Path):
     """Consumidores por trafo MT (BT) e por PAC (MT), para a topologia."""
     nomes = {n for n, _ in pyogrio.list_layers(gdb)}
     for lay, chave in [("UCBT_tab", "UNI_TR_MT"), ("UCMT_tab", "PAC")]:
@@ -73,30 +57,74 @@ def _ucs(gdb: Path, ano: int):
                                                              ene_ano_kwh=("ene_ano_kwh", "sum")).reset_index()
         for c in [chave, "CTMT"]:
             agg[c] = agg[c].astype("string")
-        agg.to_parquet(OUT / str(ano) / f"{lay}_agg.parquet", index=False)
+        agg.to_parquet(out / str(ano) / f"{lay}_agg.parquet", index=False)
         INVENT.setdefault(ano, {})[f"{lay}_agg"] = len(agg)
 
 
-for ano in sorted(SNAPS, reverse=True):
-    ano = int(ano)
-    if (OUT / str(ano) / "_ok").exists():
-        print(ano, "já em cache", flush=True)
-        continue
-    destino = RAW / str(ano)
-    gdb_existente = list((GRIDRISK / "data" / "raw" / "bdgd" / str(ano)).glob("*.gdb"))
-    gdb = gdb_existente[0] if gdb_existente else bdgd.download(SNAPS[ano], destino)
-    print(ano, "lendo", gdb.name, flush=True)
-    for camada in ATIVOS:
-        _grava(gdb, camada, ano, geom=camada in COM_GEOM)
-    if ano in TOPO:
-        for camada, cols in TOPO_CAMADAS.items():
-            _grava(gdb, camada, ano, colunas=cols, geom=(camada == "UNTRMT"))
-        _ucs(gdb, ano)
-    (OUT / str(ano) / "_ok").write_text("ok")
-    if not gdb_existente:
-        shutil.rmtree(destino, ignore_errors=True)
-    print(ano, INVENT.get(ano), flush=True)
+def main(argv=None):
+    ap = config.parser(__doc__)
+    ap.add_argument("saida", nargs="?", default=None, help="pasta do cache (padrão: dados.cache_bdgd da configuração)")
+    ap.add_argument("--zips", default=None, help="pasta com os zips da BDGD já baixados (somente leitura)")
+    args = ap.parse_args(argv)
+    cfg = config.carregar(args.config, resolver_valor=False)
+    b = cfg.get("bdgd", {})
+    out = Path(args.saida) if args.saida else Path(cfg["dados"]["cache_bdgd"])
+    zips = config.zips_locais(cfg, args.zips)
+    ativos = list(b.get("camadas", ATIVOS))
+    com_geom = set(b.get("com_geometria", COM_GEOM))
+    topo_cfg = b.get("topologia", {})
+    topo = set(topo_cfg.get("anos", TOPO))
+    topo_camadas = topo_cfg.get("camadas", TOPO_CAMADAS)
+    com_ucs = topo_cfg.get("ucs", True)
 
-(OUT / "inventario.json").write_text(json.dumps(INVENT, indent=1, default=str))
-(OUT / "DONE").write_text("ok")
-print("DONE", flush=True)
+    if zips is None:
+        gridrisk = ROOT.parent / "distribution-asset-risk"
+        sys.path.insert(0, str(gridrisk / "src"))
+        from gridrisk.ingest import bdgd  # noqa: E402
+        snaps = b.get("snapshots") or yaml.safe_load(open(gridrisk / "configs" / "emt.yaml"))["bdgd"]["snapshots"]
+        aliases = bdgd.LAYER_ALIASES
+        raw = out / "_raw"
+    else:
+        snaps = b["snapshots"]
+        aliases = None
+    anos = sorted((int(a) for a in snaps), reverse=zips is None)
+    if zips is not None and b.get("anos_cache"):
+        anos = [a for a in anos if a in set(b["anos_cache"])]
+
+    for ano in anos:
+        if (out / str(ano) / "_ok").exists():
+            print(ano, "já em cache", flush=True)
+            continue
+        if zips is not None:
+            fonte = K.fonte_do_zip(K.achar_zip(zips, ano, str(snaps[ano] if ano in snaps else snaps[str(ano)]),
+                                               b.get("padrao_zip", K.PADRAO_ZIP)))
+            print(ano, "lendo", fonte.rsplit("/", 1)[-1], flush=True)
+            apaga = None
+        else:
+            gridrisk_raw = list((gridrisk / "data" / "raw" / "bdgd" / str(ano)).glob("*.gdb"))
+            fonte = gridrisk_raw[0] if gridrisk_raw else bdgd.download(snaps[ano], raw / str(ano))
+            print(ano, "lendo", fonte.name, flush=True)
+            apaga = None if gridrisk_raw else raw / str(ano)
+        for camada in ativos:
+            _grava(fonte, camada, ano, out, geom=camada in com_geom, aliases=aliases)
+        if ano in topo:
+            for camada, cols in topo_camadas.items():
+                _grava(fonte, camada, ano, out, colunas=cols, geom=(camada == "UNTRMT"), aliases=aliases)
+            if com_ucs and zips is None:
+                _ucs(fonte, ano, out)
+        (out / str(ano) / "_ok").write_text("ok")
+        if apaga is not None:
+            shutil.rmtree(apaga, ignore_errors=True)
+        print(ano, INVENT.get(ano), flush=True)
+
+    inv = INVENT
+    if zips is not None and (out / "inventario.json").exists():
+        antigo = json.loads((out / "inventario.json").read_text())
+        inv = {**antigo, **{str(k): v for k, v in INVENT.items()}}
+    (out / "inventario.json").write_text(json.dumps(inv, indent=1, default=str))
+    (out / "DONE").write_text("ok")
+    print("DONE", flush=True)
+
+
+if __name__ == "__main__":
+    main()
