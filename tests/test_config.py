@@ -225,3 +225,11 @@ def test_cache_de_outra_distribuidora_e_recusado(tmp_path):
     K.verificar_distribuidora(tmp_path, 2025, None)
     with pytest.raises(ValueError, match="404"):
         K.verificar_distribuidora(tmp_path, 2025, 404)
+    # DIST inteiro com nulos volta do Parquet como float: 405.0 é a distribuidora 405 (MT não pode abortar por isso)
+    arq = tmp_path / "2025" / "CTMT.parquet"
+    pd.DataFrame({"COD_ID": ["a", "b", "c"], "DIST": [405.0, None, 405.0]}).to_parquet(arq)
+    K.verificar_distribuidora(tmp_path, 2025, 405)
+    pd.DataFrame({"COD_ID": ["a", "b"], "DIST": ["405", " 405"]}).to_parquet(arq)
+    K.verificar_distribuidora(tmp_path, 2025, 405)
+    with pytest.raises(ValueError, match="404"):
+        K.verificar_distribuidora(tmp_path, 2025, 404)

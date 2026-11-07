@@ -48,7 +48,10 @@
         "min_nao_sinalizadas": 10,
         "min_pct_pareadas": 80
       },
-      "motivo": ""
+      "motivo": "",
+      "criterios_sem_amostra_minima": [
+        "utilizacao_acima_80"
+      ]
     },
     "2023": {
       "passou": true,
@@ -62,7 +65,10 @@
         "min_nao_sinalizadas": 10,
         "min_pct_pareadas": 80
       },
-      "motivo": ""
+      "motivo": "",
+      "criterios_sem_amostra_minima": [
+        "utilizacao_acima_80"
+      ]
     }
   }
 }

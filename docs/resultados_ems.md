@@ -158,9 +158,9 @@ do mesmo `COD_ID` também mudou em 23% dos trafos entre 2021 e 2022). O resultad
 
 **O que isso significa:** as SEs sinalizadas **não** foram mais ampliadas que as demais. Em 2022, 1 de 13 sinalizadas e
 2 de 16 das demais; em 2023, 1 de 16 e 1 de 12. São amostras de 12 a 16 SEs, e a diferença é de 1 a 2 SEs, então não dá
-para afirmar nem que haja relação nem que não haja. Em MT as sinalizadas foram ampliadas cerca de 3 vezes mais. Para o
-critério de utilização acima de 80%, as amostras de sinalizadas são de 2 e 5 SEs (diagnósticos de 2022 e 2023, nessa ordem): não
-servem para concluir.
+para afirmar nem que haja relação nem que não haja. Em MT as sinalizadas foram ampliadas cerca de 3 vezes mais. O critério de utilização acima de 80% tem menos de 10 SEs sinalizadas nos dois
+diagnósticos e, pela mesma amostra mínima, **não é publicado** (`criterios_sem_amostra_minima` em
+[`validacao_portas.json`](../reports/ems/validacao_portas.json)).
 
 ### 4.2 O índice de 2023 antecipa os eventos de SE de 2024-2025? (porta (b), passa)
 

@@ -48,6 +48,12 @@ def porta_ampliacao(base: pd.DataFrame, pareadas: int, params: dict, flag: str =
             "minimos": dict(params), "motivo": "; ".join(motivos)}
 
 
+def amostra_minima(t: pd.DataFrame, params: dict) -> bool:
+    """Um critério só é publicado se tem sinalizadas e não sinalizadas em número suficiente (``portas_ampliacao``)."""
+    n = t.set_index("sinalizada").n_ses
+    return bool(n.get(True, 0) >= params["min_sinalizadas"] and n.get(False, 0) >= params["min_nao_sinalizadas"])
+
+
 def main(argv=None):
     cfg = config.carregar_args(__doc__, argv)
     d = cfg["dados"]
@@ -124,10 +130,16 @@ def main(argv=None):
             portas_amp[str(ano)] = porta_ampliacao(b, len(Va.ampliacoes(b, depois)), pa)
             if not portas_amp[str(ano)]["passou"]:
                 continue
+        sem_amostra = []
         for flag in ("sem_folga_n1", "sem_folga_n1_multi", "utilizacao_acima_80"):
             t = Va.taxa_ampliacao(b, depois, flag, min_trafos=2 if (multi_so_2mais and flag == "sem_folga_n1_multi")
                                   else None).assign(ano_base=ano, criterio=flag)
+            if pa is not None and not amostra_minima(t, pa):
+                sem_amostra.append(flag)       # a mesma amostra mínima da porta (c) vale para cada critério
+                continue
             amp.append(t)
+        if pa is not None:
+            portas_amp[str(ano)]["criterios_sem_amostra_minima"] = sem_amostra
     if amp:
         pd.concat(amp, ignore_index=True).to_csv(R / "validacao_ampliacoes.csv", index=False)
     amp = pd.concat(amp, ignore_index=True) if amp else pd.DataFrame()

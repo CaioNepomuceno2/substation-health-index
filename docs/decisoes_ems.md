@@ -496,10 +496,11 @@ python scripts/diagnostico_ems.py --config configs/premissas_ems.yaml --zips <pa
 A configuração também pode vir da variável `SEHEALTH_CONFIG=configs/premissas_ems.yaml`. Precisam estar clonados ao
 lado: `distribution-asset-risk` (dados de MS em `data/ems/interim`) e `automation-impact` (`reports/ems/valor.json`).
 
-## 13. Adendo: SEs com código em branco e ranking entre carregamentos confiáveis
+## 13. Adendo: SEs com código em branco, ranking entre carregamentos confiáveis e amostra mínima por critério
 
-Estas duas mudanças foram decididas **depois da primeira execução do painel de MS** (07/11/2026), quando o ranking
-mostrou uma "SE" sem nome. As decisões anteriores (seções 2 a 12) não mudaram.
+As duas primeiras mudanças foram decididas **depois da primeira execução do painel de MS** (07/11/2026), quando o ranking
+mostrou uma "SE" sem nome; a terceira, depois da revisão dos resultados de validação. As decisões anteriores (seções 2 a 12)
+não mudaram.
 
 * **O que apareceu.** `UNTRAT.SUB` e `CTMT.SUB` em branco em 2023, 2024 e 2025
   ([`vinculo_alimentador_trafo.csv`](../reports/ems/diagnostico/vinculo_alimentador_trafo.csv)): 5, 7, 6 trafos e
@@ -532,6 +533,12 @@ mostrou uma "SE" sem nome. As decisões anteriores (seções 2 a 12) não mudara
   ranking eram dessas. O índice de MS ganha então a coluna `rank_risco_carregamento_confiavel`, com a posição só entre as
   SEs cujo carregamento entra na nota (`qualidade.rank_entre_carregamento_confiavel`). **É uma leitura complementar: o
   ranking principal e os pesos não mudam**, e as SEs de carregamento incerto continuam marcadas no CSV e nas tabelas.
+* **Decisão 3.** A porta (c) fixou as amostras mínimas (10 sinalizadas e 10 não sinalizadas) para a comparação principal
+  (sem folga N-1 com 2+ trafos). A primeira versão do CSV publicava também os outros dois critérios (`sem_folga_n1` e
+  `utilizacao_acima_80`) sem checar a amostra, e o de utilização acima de 80% tinha 2 e 5 SEs sinalizadas (uma delas com
+  "50% ampliadas"). **Agora a mesma amostra mínima vale para cada critério**: o que não a atinge não é publicado
+  (`criterios_sem_amostra_minima` em `validacao_portas.json`). É uma mudança mais conservadora; nada que antes passava deixou
+  de passar entre os critérios principais.
 
 ## 14. Guarda de MT
 

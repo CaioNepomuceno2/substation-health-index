@@ -67,16 +67,18 @@ def gravar_camada(fonte: str | Path, camada: str, destino: Path, colunas: list[s
 
 
 def verificar_distribuidora(cache: Path, ano: int, cod_aneel: int | None) -> None:
-    """Recusa um cache de outra distribuidora (coluna ``DIST`` da camada CTMT diferente do código ANEEL esperado)."""
+    """Recusa um cache de outra distribuidora (coluna ``DIST`` da camada CTMT diferente do código ANEEL esperado).
+
+    A comparação é numérica: um ``DIST`` gravado como inteiro com nulos volta do Parquet como float (405.0).
+    """
     if cod_aneel is None:
         return
     p = Path(cache) / str(ano) / "CTMT.parquet"
     if not p.exists():
         return
-    cols = pd.read_parquet(p).columns
-    if "DIST" not in cols:
+    if "DIST" not in pd.read_parquet(p).columns:
         return
-    dist = pd.read_parquet(p, columns=["DIST"]).DIST.dropna().astype(str).str.strip().unique()
-    esperado = str(int(cod_aneel))
-    if len(dist) and set(dist) != {esperado}:
-        raise ValueError(f"cache {p} é da distribuidora {sorted(dist)}, mas a configuração é a {esperado}")
+    dist = pd.to_numeric(pd.read_parquet(p, columns=["DIST"]).DIST, errors="coerce").dropna().astype(int).unique()
+    esperado = int(cod_aneel)
+    if len(dist) and set(dist.tolist()) != {esperado}:
+        raise ValueError(f"cache {p} é da distribuidora {sorted(dist.tolist())}, mas a configuração é a {esperado}")

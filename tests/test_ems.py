@@ -139,6 +139,9 @@ def test_fumaca_ms_pipeline_completo(dados):
     m = amp[amp.criterio == "sem_folga_n1_multi"].set_index(["ano_base", "sinalizada"])
     assert m.loc[(2023, True), "taxa"] == 0 and m.loc[(2023, False), "taxa"] == 1
     assert all(portas["ampliacoes_reais"][str(a)]["passou"] for a in (2021, 2022, 2023))
+    # nenhuma SE de teste passa de 80% de utilização: esse critério não tem sinalizadas e não é publicado
+    assert set(amp.criterio) == {"sem_folga_n1", "sem_folga_n1_multi"}
+    assert portas["ampliacoes_reais"]["2023"]["criterios_sem_amostra_minima"] == ["utilizacao_acima_80"]
     assert (R / "figures" / "05_validacao.png").exists() and (R / "figures" / "01_mapa_risco.png").exists()
 
 
